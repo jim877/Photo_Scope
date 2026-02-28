@@ -85,10 +85,10 @@
     .wizard-step-bar{flex:1;height:3px;border-radius:3px;background:var(--border)}
     .wizard-step-bar.done,.wizard-step-bar.active{background:var(--accent)}
     .wizard-step-label{font-family:var(--mono);font-size:11px;color:var(--text-muted);padding:8px 20px 0;text-transform:uppercase;letter-spacing:.7px}
-    .wizard-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 24px 16px}
+    .wizard-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:24px 24px 16px}
     .wizard-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
     .wizard-sub{font-size:14px;color:var(--text-sec);margin-bottom:28px}
-    .wizard-footer{padding:16px 20px 20px;flex-shrink:0}
+    .wizard-footer{padding:16px 20px 20px;flex-shrink:0;background:var(--bg);border-top:1px solid var(--border)}
     .floor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-bottom:24px}
     .floor-btn{padding:18px 0;font-size:22px;font-weight:800;border-radius:var(--r-sm);background:var(--surface2);border:2px solid var(--border);cursor:pointer;color:var(--text);font-family:var(--font);transition:all .12s}
     .floor-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
@@ -364,6 +364,28 @@
 
     .spacer16{height:16px}
     .pad16{padding:0 16px}
+
+    /* Guided mode */
+    .guide-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 12px;font-size:13px;color:var(--text-sec)}
+    .guide-toggle-prominent{padding:12px 20px;margin:0 16px 8px;background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border);font-weight:600;color:var(--text)}
+    .guide-toggle-btn{padding:4px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--accent);color:#111;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);min-width:44px}
+    .guide-toggle-btn.off{background:var(--surface2);color:var(--text-muted)}
+    .guide-card{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid var(--accent-border);border-radius:var(--r-md);padding:14px 16px;margin:12px 16px 0}
+    .guide-card-title{font-size:14px;font-weight:800;color:var(--accent-dark);margin-bottom:4px}
+    .guide-card-body{font-size:13px;color:var(--text-sec);line-height:1.5;margin-bottom:12px}
+    .guide-card-cta{background:var(--accent);border:none;border-radius:var(--r-xs);padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);color:#111}
+    .guide-card-cta:active{opacity:.8}
+    .cam-hint{position:absolute;bottom:150px;left:16px;right:16px;z-index:11;background:rgba(0,0,0,.72);color:#fff;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;text-align:center;line-height:1.5;transition:opacity .4s;pointer-events:auto;cursor:pointer}
+    .swipe-nav{position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent)}
+    .swipe-close{background:rgba(0,0,0,.5);border:none;color:#fff;width:36px;height:36px;border-radius:18px;font-size:18px;cursor:pointer}
+    .swipe-counter{color:#fff;font-size:14px;font-weight:600}
+    .swipe-area{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y pinch-zoom}
+    .swipe-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px 20px 24px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:6px}
+    .swipe-overlay .tag-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .swipe-overlay .tag-pill{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:8px;font-size:13px}
+    .swipe-arrows{position:absolute;bottom:80px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:15;pointer-events:none}
+    .swipe-arrows .swipe-arrow{pointer-events:auto;background:rgba(0,0,0,.5);border:none;color:#fff;width:48px;height:48px;border-radius:24px;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+    .cam-hint.fade{opacity:0}
   </style>
 </head>
 <body>
@@ -381,7 +403,12 @@
     </div>
     <div class="scroll">
       <div class="spacer16"></div>
+      <div class="guide-toggle-row guide-toggle-prominent">
+        <span>Guided mode</span>
+        <button class="guide-toggle-btn" id="guide-toggle"></button>
+      </div>
       <div class="pad16"><button class="btn btn-amber btn-lg btn-full" id="btn-new-order">New Order →</button></div>
+      <div id="guide-welcome-slot"></div>
       <div class="sec-label">Recent Orders</div>
       <div id="orders-list"></div>
       <div style="height:24px"></div>
@@ -396,7 +423,7 @@
     </div>
     <div class="wizard-progress" id="wiz-prog"></div>
     <div class="wizard-step-label">STEP 1 OF 3</div>
-    <div class="wizard-body">
+    <div class="wizard-body" id="wiz1-body">
       <div class="wizard-title">Project Address</div>
       <div class="wizard-sub">Where is this job?</div>
       <label class="input-label">Address</label>
@@ -424,7 +451,7 @@
     </div>
     <div class="wizard-progress" id="wiz-prog2"></div>
     <div class="wizard-step-label">STEP 2 OF 3</div>
-    <div class="wizard-body">
+    <div class="wizard-body" id="wiz2-body">
       <div class="wizard-title">Service Offerings</div>
       <div class="wizard-sub">What services apply?</div>
       <div style="width:100%" id="offerings-rows"></div>
@@ -442,7 +469,7 @@
     </div>
     <div class="wizard-progress" id="wiz-prog3"></div>
     <div class="wizard-step-label">STEP 3 OF 3</div>
-    <div class="scroll">
+    <div class="scroll" id="wiz3-scroll">
       <div style="padding:16px 20px 8px">
         <div style="font-size:22px;font-weight:800;letter-spacing:-.4px">Loss Assessment</div>
         <div style="font-size:13px;color:var(--text-sec);margin-top:4px">Rate the <strong>worst affected area</strong> of the home — the items we'll be cleaning or packing out. Floors and rooms inherit these values automatically unless overridden. Tap ▸ to add detail ratings.</div>
@@ -482,6 +509,7 @@
         </div>
       </div>
       <div style="height:6px"></div>
+      <div id="order-guide-slot"></div>
       <div id="floors-list"></div>
     </div>
     <div style="padding:10px 16px 16px;border-top:1px solid var(--border);flex-shrink:0">
@@ -503,6 +531,7 @@
       <div class="room-toolbar">
         <button class="toolbar-btn" id="btn-search-toggle">🔍 Search</button>
         <button class="toolbar-btn" id="btn-filter-toggle">⚡ Filter</button>
+        <button class="toolbar-btn" id="btn-review-swipe" title="Swipe through photos">👁 Review</button>
         <button class="toolbar-btn" id="btn-select-toggle">☑ Select</button>
         <button class="toolbar-btn" id="btn-origin-toggle">🎯 Origin</button>
         <button class="toolbar-btn" id="btn-room-sev">📊 Sev</button>
@@ -537,6 +566,22 @@
     </div>
   </div>
 
+  <!-- PHOTO SWIPE — full-screen swipe through filtered photos with overlays -->
+  <div id="scr-photo-swipe" class="screen" style="background:#000">
+    <div class="swipe-nav">
+      <button class="swipe-close" id="swipe-close">✕</button>
+      <span class="swipe-counter" id="swipe-counter">1 / 1</span>
+    </div>
+    <div class="swipe-area" id="swipe-area">
+      <img id="swipe-img" alt="" style="width:100%;height:100%;object-fit:contain" />
+      <div class="swipe-overlay" id="swipe-overlay"></div>
+    </div>
+    <div class="swipe-arrows">
+      <button class="swipe-arrow" id="swipe-prev">‹</button>
+      <button class="swipe-arrow" id="swipe-next">›</button>
+    </div>
+  </div>
+
   <!-- CAMERA — full-screen, floating shutter -->
   <div id="scr-camera" class="screen cam-screen">
     <div class="cam-wrap">
@@ -553,6 +598,7 @@
           <button id="cam-floor-plan" style="background:rgba(0,0,0,.55);border:none;color:#fff;padding:5px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer">Floor Plan ›</button>
         </div>
       </div>
+      <div id="cam-hint" class="cam-hint" style="display:none"></div>
       <!-- Floating shutter -->
       <div class="cap-float">
         <div class="cap-ring">
@@ -569,7 +615,7 @@
     <div class="review-photo-area">
       <img id="rev-img" alt="" />
       <div class="review-hud">
-        <button class="review-close" id="rev-close" title="Discard photo">✕ Discard</button>
+        <button class="review-close" id="rev-close">✕ Discard</button>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="cam-close" id="rev-retake" title="Retake photo">↺</button>
           <button class="review-cover-btn" id="rev-cover-btn" title="Set as cover photo">☆</button>
@@ -671,21 +717,33 @@
   <div class="sheet-overlay" id="sheet-room-assess">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div class="sheet-title" style="margin-bottom:10px">Room Impact Check</div>
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <button class="btn btn-white btn-md" id="assess-not-affected" style="flex:1;font-size:13px">Not Affected</button>
-        <button class="btn btn-white btn-md" id="assess-nothing-for-us" style="flex:1;font-size:13px">Nothing for Us</button>
+      <div id="assess-intro">
+        <div class="sheet-title" style="margin-bottom:8px">Room Impact Check</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button class="btn btn-white btn-md" id="assess-not-affected" style="flex:1;font-size:13px">Not Affected</button>
+          <button class="btn btn-white btn-md" id="assess-nothing-for-us" style="flex:1;font-size:13px">Nothing for Us</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Order-level severity for worst area:</div>
+        <div id="assess-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-amber btn-md" id="assess-confirm-applies" style="flex:1">Confirm applies →</button>
+          <button class="btn btn-white btn-md" id="assess-modify" style="flex:1">Modify</button>
+        </div>
+        <button id="assess-skip" style="display:block;margin-top:12px;background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text-muted);text-decoration:underline;text-underline-offset:2px;width:100%;text-align:center">Skip</button>
       </div>
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Inherited from floor / order</div>
-      <div id="assess-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
-      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">This room's override</div>
-      <div id="assess-loss-cards"></div>
-      <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn btn-white btn-md" id="assess-skip" style="flex:1">Skip</button>
-        <button class="btn btn-amber btn-md" id="assess-confirm" style="flex:1">Save →</button>
-      </div>
-      <div style="text-align:center;margin-top:10px">
-        <button id="assess-reset" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text-muted);text-decoration:underline;text-underline-offset:2px">Reset to floor/order default</button>
+      <div id="assess-detail" style="display:none">
+        <div class="sheet-title" style="margin-bottom:10px">Modify Room Severity</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Inherited from floor / order</div>
+        <div id="assess-inherited-detail" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">This room's override</div>
+        <div id="assess-loss-cards"></div>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button class="btn btn-white btn-md" id="assess-back" style="flex:1">← Back</button>
+          <button class="btn btn-amber btn-md" id="assess-confirm" style="flex:1">Save →</button>
+        </div>
+        <div style="text-align:center;margin-top:10px">
+          <button id="assess-reset" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text-muted);text-decoration:underline;text-underline-offset:2px">Reset to floor/order default</button>
+        </div>
       </div>
     </div>
   </div>
@@ -771,6 +829,18 @@
       </div>
     </div>
   </div>
+  <div class="sheet-overlay" id="sheet-room-summary">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="room-summary-title"></div>
+      <div id="room-summary-cover" style="margin:8px 0;border-radius:10px;overflow:hidden;max-height:160px;display:flex;align-items:center;justify-content:center;background:var(--surface2)"></div>
+      <div id="room-summary-body" style="font-size:13px;color:var(--text-sec);line-height:1.6"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-white btn-md" id="room-summary-back" style="flex:1">← Back to Room</button>
+        <button class="btn btn-amber btn-md" id="room-summary-confirm" style="flex:1">Confirm Done →</button>
+      </div>
+    </div>
+  </div>
 </div><!-- /phone -->
 
 <script>
@@ -835,10 +905,13 @@ const collapsedFloors=new Set();
 let assessRoomSev={};           // working severity in room assess sheet
 let addRoomMultiMode=false;
 const addRoomMultiSel=new Set();
-let revIsCover=false;           // cover flag for current review
+let revIsCover=false;
+let swipePhotos=[],swipeIdx=0;
 let editFloorIdx=null;          // floor index being edited in floor-sev sheet
 let editFloorSev={};            // working severity in floor-sev sheet
 const expandedLossCards=new Set(); // expanded loss cards in wiz/assess/floor sheets
+let guidedMode=localStorage.getItem('guidedMode')!=='false';
+let guideStep=null;
 
 /* ── Helpers ── */
 function $(id){return document.getElementById(id)}
@@ -875,16 +948,46 @@ function goBack(){
 }
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',goBack));
 function onEnter(id){
-  if(id==='scr-orders')renderOrders();
+  if(id==='scr-orders'){
+    renderOrders();updateGuideToggle();
+    $('guide-welcome-slot').innerHTML='';
+    if(guidedMode&&!orders.length){
+      showGuideCard('guide-welcome-slot',{
+        title:'Welcome to Photo Scope!',
+        body:'Guided mode will walk you through each step — creating an order, photographing rooms, and tagging your work. You can turn it off anytime from this screen.',
+        cta:'Got it — let\'s start',
+        onCta:()=>go('scr-wiz1')
+      });
+    }
+  }
   if(id==='scr-wiz1')initWiz1();
   if(id==='scr-wiz2')initWiz2();
   if(id==='scr-wiz3')initWiz3();
   if(id==='scr-order')renderOrder();
-  if(id==='scr-room')renderRoom();
-  if(id==='scr-camera'){startCam();updateCamBadge();}
+  if(id==='scr-room'){
+    if(curRoom)lastTags[curRoom.displayName]=null;
+    renderRoom();
+  }
+  if(id==='scr-photo-swipe')updateSwipeDisplay();
+  if(id==='scr-camera'){
+    startCam();updateCamBadge();
+    if(guidedCoverPhotoMode){
+      showCamHint('Take a cover photo of the exterior of the property');
+    } else if(guidedMode&&curRoom){
+      if(selPrimary==='NA'){
+        showCamHint('Photograph the unaffected room for our records');
+      } else if(selPrimary==='NTD'){
+        showCamHint('Document the room to show there is nothing for us to do here');
+      } else if(curRoom.photos.length===0){
+        showCamHint('Take before photos from every angle — show the room as you found it');
+      } else if(curRoom.photos.some(p=>p.primary==='BEF')&&!curRoom.photos.some(p=>p.primary!=='BEF')){
+        showCamHint('Now photograph items we\'ll be working on — select a reason to describe what we\'ll do');
+      }
+    }
+  }
   if(id==='scr-review'){
     // Guard: if no image to show, skip back to room grid
-    if(!editingPhoto&&!capturedUrl){
+    if(!guidedCoverPhotoMode&&!editingPhoto&&!capturedUrl){
       if(stack[stack.length-1]==='scr-review')stack.pop();
       if(stack[stack.length-1]==='scr-camera')stack.pop();
       const dest=stack[stack.length-1]||'scr-room';
@@ -913,7 +1016,57 @@ function renderOrders(){
     el.appendChild(c);
   });
 }
-$('btn-new-order').addEventListener('click',()=>go('scr-wiz1'));
+function updateGuideToggle(){
+  const btn=$('guide-toggle');
+  btn.textContent=guidedMode?'ON':'OFF';
+  btn.classList.toggle('off',!guidedMode);
+}
+$('guide-toggle').addEventListener('click',()=>{
+  guidedMode=!guidedMode;
+  localStorage.setItem('guidedMode',guidedMode);
+  updateGuideToggle();
+});
+$('btn-new-order').addEventListener('click',()=>{
+  window._wiz1GuideDismissed=window._wiz2GuideDismissed=window._wiz3GuideDismissed=false;
+  go('scr-wiz1');
+});
+
+/* ── Guided mode helpers ── */
+function showGuideCard(containerId,{title,body,cta,onCta}){
+  if(!guidedMode)return;
+  const prev=document.querySelector('#'+containerId+' .guide-card');
+  if(prev)prev.remove();
+  const el=document.createElement('div');
+  el.className='guide-card';
+  el.innerHTML=`<div class="guide-card-title">${title}</div><div class="guide-card-body">${body}</div><button class="guide-card-cta">${cta}</button>`;
+  el.querySelector('.guide-card-cta').addEventListener('click',()=>{el.remove();if(onCta)onCta();});
+  $(containerId).prepend(el);
+}
+
+function showCamHint(text){
+  if(!guidedMode)return;
+  const el=$('cam-hint');
+  el.textContent=text;
+  el.style.display='block';
+  el.classList.remove('fade');
+  el.title='Tap to dismiss';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{
+    el.classList.add('fade');
+    setTimeout(()=>{el.style.display='none';el.classList.remove('fade');},400);
+  },8000);
+}
+function dismissCamHint(){
+  const el=$('cam-hint');
+  clearTimeout(el._t);
+  el.classList.add('fade');
+  setTimeout(()=>{el.style.display='none';el.classList.remove('fade');},400);
+}
+
+/* ── New user detection ── */
+if(!orders.length&&localStorage.getItem('guidedMode')===null){
+  guidedMode=true;localStorage.setItem('guidedMode','true');
+}
 
 /* ── Wizard ── */
 function initWiz1(){
@@ -931,16 +1084,31 @@ function initWiz1(){
   }
   $('wiz-btn-basement').classList.toggle('active',wizHasBasement);
   $('wiz-btn-attic').classList.toggle('active',wizHasAttic);
+  if(guidedMode&&!window._wiz1GuideDismissed){
+    showGuideCard('wiz1-body',{
+      title:'Let\'s set up the project',
+      body:'Enter the address, select the property type, and choose how many floors. Tap <b>Next</b> when you\'re ready.',
+      cta:'Got it',
+      onCta:()=>{window._wiz1GuideDismissed=true;}
+    });
+  }
 }
 $('wiz-btn-basement').addEventListener('click',()=>{wizHasBasement=!wizHasBasement;initWiz1();});
 $('wiz-btn-attic').addEventListener('click',()=>{wizHasAttic=!wizHasAttic;initWiz1();});
+let guidedCoverPhotoMode=false;
 $('btn-wiz1-next').addEventListener('click',()=>{
   window._wizAddr=$('inp-address').value.trim()||'New Order';
   window._wizFloors=wizFloorCount;
   window._wizBasement=wizHasBasement;
   window._wizAttic=wizHasAttic;
   window._wizPropertyType=wizPropertyType;
-  go('scr-wiz2');
+  if(guidedMode){
+    guidedCoverPhotoMode=true;
+    selPrimary=null;selSubs.clear();
+    go('scr-camera');
+  } else {
+    go('scr-wiz2');
+  }
 });
 function initWiz2(){
   progressBars('wiz-prog2',2,3);
@@ -953,6 +1121,14 @@ function initWiz2(){
     row.addEventListener('click',()=>{const a=window._wizOfferings;const j=a.indexOf(o);if(j>=0)a.splice(j,1);else a.push(o);initWiz2();});
     el.appendChild(row);
   });
+  if(guidedMode&&!window._wiz2GuideDismissed){
+    showGuideCard('wiz2-body',{
+      title:'Select your services',
+      body:'Choose which service offerings apply to this order. You can always change these later.',
+      cta:'Got it',
+      onCta:()=>{window._wiz2GuideDismissed=true;}
+    });
+  }
 }
 $('btn-wiz2-next').addEventListener('click',()=>go('scr-wiz3'));
 function initWiz3(){
@@ -961,6 +1137,14 @@ function initWiz3(){
   if(window._wizUniform===undefined)window._wizUniform=true;
   renderLossCards('sev-loss-cards',window._wizSev,'wiz');
   syncWiz3Uniform();
+  if(guidedMode&&!window._wiz3GuideDismissed){
+    showGuideCard('wiz3-scroll',{
+      title:'Rate the worst affected area',
+      body:'Set the severity for each loss type based on the <b>worst area</b> of the home. Floors and rooms will inherit these values unless you override them later. Tap ▸ on a card to expand detail ratings.',
+      cta:'Got it',
+      onCta:()=>{window._wiz3GuideDismissed=true;}
+    });
+  }
 }
 function syncWiz3Uniform(){
   const isYes=window._wizUniform!==false;
@@ -1052,9 +1236,9 @@ $('btn-wiz3-done').addEventListener('click',()=>{
   if(window._wizBasement)floors.push({name:'Basement',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   for(let i=1;i<=numF;i++)floors.push({name:'Floor '+i,rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   if(window._wizAttic)floors.push({name:'Attic',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
-  const o={id:nextOrderId++,address:window._wizAddr||'New Order',propertyType:window._wizPropertyType||'House',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors};
+  const o={id:nextOrderId++,address:window._wizAddr||'New Order',propertyType:window._wizPropertyType||'House',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors,coverPhoto:window._wizCoverPhoto||null};
   orders.push(o);curOrder=o;
-  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;window._wizPropertyType=null;
+  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;window._wizPropertyType=null;window._wizCoverPhoto=null;
   wizFloorCount=1;wizHasBasement=false;wizHasAttic=false;wizPropertyType='House';
   expandedLossCards.clear();
   collapsedFloors.clear();
@@ -1063,6 +1247,26 @@ $('btn-wiz3-done').addEventListener('click',()=>{
 
 /* ── Order screen — collapsible floors + rooms ── */
 function renderOrder(){
+  // Guided mode: contextual prompts on the floor plan
+  $('order-guide-slot').innerHTML='';
+  const totalRooms=curOrder.floors.reduce((a,f)=>a+f.rooms.length,0);
+  if(guidedMode&&guidedShowContinue){
+    guidedShowContinue=false;
+    showGuideCard('order-guide-slot',{
+      title:'Great work!',
+      body:'Move to the next room and repeat the walkthrough. Tap a room to continue, or add a new one.',
+      cta:'Got it',
+      onCta:()=>{}
+    });
+  } else if(guidedMode&&!curOrder._guidedOriginShown&&totalRooms===0){
+    curOrder._guidedOriginShown=true;
+    showGuideCard('order-guide-slot',{
+      title:'Start with the origin room',
+      body:'Add the room where the damage originated first. Expand a floor below and tap <b>+ Add room</b> to begin your walkthrough.',
+      cta:'Got it',
+      onCta:()=>{}
+    });
+  }
   $('order-nav-title').textContent='Order #'+curOrder.id;
   $('order-address-heading').textContent=curOrder.address;
   const tp=curOrder.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
@@ -1163,9 +1367,11 @@ function renderOrder(){
         const hasPU=r.photos.some(p=>p.primary==='PU');
         const hasTLI=r.photos.some(p=>p.primary==='TLI');
         const hasIH=r.photos.some(p=>p.primary==='IH');
+        const derivedNFU=r.photos.length>0&&r.photos.every(p=>p.primary==='NTD')&&!r.photos.some(p=>['BEF','PU','IH','SVC','TLI'].includes(p.primary||''));
+        const showNFU=r.nothingForUs||(!r.assessed&&derivedNFU);
         let badgeHtml='';
         if(r.notAffected)badgeHtml+='<span class="room-status-pill room-status-na" style="font-size:11px;padding:2px 8px">✓ Not Affected</span>';
-        else if(r.nothingForUs)badgeHtml+='<span class="room-status-pill room-status-nfu" style="font-size:11px;padding:2px 8px">Nothing for Us</span>';
+        else if(showNFU)badgeHtml+='<span class="room-status-pill room-status-nfu" style="font-size:11px;padding:2px 8px">Nothing for Us</span>';
         else {
           if(hasPU)badgeHtml+='<span class="badge badge-pu">PU</span>';
           if(hasTLI)badgeHtml+='<span class="badge badge-tli">TLI</span>';
@@ -1362,9 +1568,11 @@ function floorPrefix(f){
 function createRoom(name){
   const f=curFloor();
   const dn=floorPrefix(f)+'. '+name;
-  const room={name,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:false};
+  const totalBefore=curOrder.floors.reduce((a,x)=>a+x.rooms.length,0);
+  const room={name,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:guidedMode&&curOrder._guidedOriginShown&&totalBefore===0};
   f.rooms.push(room);
   curRoom=room;
+  if(room.isOrigin)showToast('🎯 Marked as origin room');
   if(stack[stack.length-1]!=='scr-room')stack.push('scr-room');
   go('scr-room');  // renderRoom() runs → assess sheet fires on first entry
 }
@@ -1385,12 +1593,14 @@ function renderRoom(){
   $('room-title').textContent=curRoom.displayName;
   $('room-breadcrumb').textContent='← Floor Plan';
 
-  // Status badge
+  // Status badge (nothingForUs from assess sheet OR derived when all photos are NTD)
   const sb=$('room-status-badge');
+  const derivedNFU=curRoom.photos.length>0&&curRoom.photos.every(p=>p.primary==='NTD')&&!curRoom.photos.some(p=>['BEF','PU','IH','SVC','TLI'].includes(p.primary||''));
+  const showNFU=curRoom.nothingForUs||(!curRoom.assessed&&derivedNFU);
   if(curRoom.notAffected){
     sb.style.display='block';
     sb.innerHTML='<span class="room-status-pill room-status-na" id="room-status-pill-el">✓ Not Affected — tap to reassess</span>';
-  } else if(curRoom.nothingForUs){
+  } else if(showNFU){
     sb.style.display='block';
     sb.innerHTML='<span class="room-status-pill room-status-nfu" id="room-status-pill-el">Nothing for Us — tap to reassess</span>';
   } else {
@@ -1480,6 +1690,38 @@ $('btn-origin-toggle').addEventListener('click',()=>{
   showToast(curRoom.isOrigin?'🎯 Marked as origin room':'Origin removed');
 });
 $('btn-room-sev').addEventListener('click',()=>openAssessSheet());
+function openSwipeView(){
+  swipePhotos=visPhotos();
+  swipeIdx=0;
+  if(!swipePhotos.length){showToast('No photos to review');return;}
+  go('scr-photo-swipe');
+}
+function updateSwipeDisplay(){
+  if(!swipePhotos.length)return;
+  const p=swipePhotos[swipeIdx];
+  $('swipe-img').src=p.dataUrl;
+  $('swipe-counter').textContent=(swipeIdx+1)+' / '+swipePhotos.length;
+  const r=findReason(p.primary);
+  const subs=(p.sub||'').split(',').map(s=>s.trim()).filter(Boolean);
+  let html='<div class="tag-line"><span class="tag-pill">'+(r?r.label:p.primary||'')+'</span>';
+  subs.forEach(s=>{html+='<span class="tag-pill">'+esc(s)+'</span>';});
+  html+='</div>';
+  if(p.note)html+='<div style="font-size:12px;opacity:.9">'+esc(p.note)+'</div>';
+  $('swipe-overlay').innerHTML=html;
+}
+$('btn-review-swipe').addEventListener('click',openSwipeView);
+$('swipe-close').addEventListener('click',()=>{goBack();});
+$('swipe-prev').addEventListener('click',()=>{if(swipeIdx>0){swipeIdx--;updateSwipeDisplay();}});
+$('swipe-next').addEventListener('click',()=>{if(swipeIdx<swipePhotos.length-1){swipeIdx++;updateSwipeDisplay();}});
+(function(){
+  const area=$('swipe-area');let startX=0;
+  area.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});
+  area.addEventListener('touchend',e=>{
+    const dx=startX-e.changedTouches[0].clientX;
+    if(dx>50&&swipeIdx<swipePhotos.length-1){swipeIdx++;updateSwipeDisplay();}
+    else if(dx<-50&&swipeIdx>0){swipeIdx--;updateSwipeDisplay();}
+  });
+})();
 function renderFilterRow(){
   const el=$('filter-row');el.innerHTML='';
   const reasons=new Set(curRoom.photos.map(p=>p.primary));
@@ -1668,7 +1910,17 @@ $('bulk-room-cancel').addEventListener('click',()=>closeSheet('sheet-bulk-room')
 
 /* ── Camera ── */
 function updateCamBadge(){
-  $('cam-badge').textContent=curRoom?curRoom.displayName:'';
+  if(guidedCoverPhotoMode){
+    $('cam-badge').textContent='Cover Photo';
+    $('cam-prelabel-badge').style.display='none';
+    $('cam-floor-plan').style.display='none';
+    $('btn-cam-room-done').style.display='none';
+    return;
+  }
+  $('cam-floor-plan').style.display='';
+  $('btn-cam-room-done').style.display='';
+  const roomLabel=curRoom?curRoom.displayName:'';
+  $('cam-badge').textContent=curRoom?.isOrigin?roomLabel+' · 🎯 Origin':roomLabel;
   const prelabel=$('cam-prelabel-badge');
   if(selPrimary){
     const r=findReason(selPrimary);
@@ -1691,12 +1943,19 @@ function stopCam(){
   const vid=$('cam-video');vid.srcObject=null;vid.style.display='none';
   $('cam-fallback').style.display='flex';
 }
+$('cam-hint').addEventListener('click',dismissCamHint);
 $('cam-close').addEventListener('click',()=>{
+  dismissCamHint();
   stopCam();
-  // Pop scr-camera, then skip any scr-review underneath (from + Another flow)
-  if(stack[stack.length-1]==='scr-camera')stack.pop();
-  if(stack[stack.length-1]==='scr-review')stack.pop();
-  const prev=stack[stack.length-1];
+  if(guidedCoverPhotoMode){
+    guidedCoverPhotoMode=false;
+    while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
+    go('scr-wiz2');
+    return;
+  }
+  while(stack.length>1&&(stack[stack.length-1]==='scr-camera'||stack[stack.length-1]==='scr-review'))stack.pop();
+  let prev=stack[stack.length-1];
+  if(!prev||prev==='scr-camera'||prev==='scr-review')prev='scr-order';
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===prev));
   onEnter(prev);
 });
@@ -1708,9 +1967,46 @@ $('cam-floor-plan').addEventListener('click',()=>{
 function doRoomDone(){
   stopCam();
   curRoom.isDone=true;
+  if(guidedMode){
+    openRoomSummary();
+    return;
+  }
   while(stack.length>1 && stack[stack.length-1]!=='scr-order')stack.pop();
   go('scr-order');
   showToast('✓ '+curRoom.displayName+' marked done');
+}
+function openRoomSummary(){
+  const r=curRoom;
+  $('room-summary-title').textContent=r.displayName+' — Done';
+  const coverEl=$('room-summary-cover');
+  const cover=r.photos.find(p=>p.isCover)||r.photos[0];
+  if(cover){
+    coverEl.innerHTML='<img src="'+cover.dataUrl+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px"/>';
+  } else {
+    coverEl.innerHTML='<div style="padding:20px;color:var(--text-muted);font-size:13px">No photos taken</div>';
+  }
+  const bodyEl=$('room-summary-body');
+  let html='';
+  if(r.notAffected) html+='<div><b>Status:</b> Not Affected</div>';
+  else if(r.nothingForUs) html+='<div><b>Status:</b> Nothing for Us</div>';
+  else {
+    const eSev=effectiveSev(r,curFloorIdx);
+    const ss=sevSummary(eSev);
+    html+='<div><b>Severity:</b> '+(ss||'None set')+'</div>';
+  }
+  html+='<div><b>Photos:</b> '+r.photos.length+'</div>';
+  const reasons={};
+  r.photos.forEach(p=>{if(p.primary){const k=p.primary;reasons[k]=(reasons[k]||0)+1;}});
+  if(Object.keys(reasons).length){
+    html+='<div style="margin-top:6px"><b>Reasons:</b></div><ul style="margin:4px 0 0 18px;padding:0">';
+    Object.entries(reasons).forEach(([code,ct])=>{
+      const lbl=findReason(code);
+      html+='<li>'+(lbl?lbl.label:code)+' ('+ct+' photo'+(ct>1?'s':'')+')</li>';
+    });
+    html+='</ul>';
+  }
+  bodyEl.innerHTML=html;
+  openSheet('sheet-room-summary');
 }
 $('btn-cam-room-done').addEventListener('click',()=>{
   const hasPhotos=curRoom.photos.length>0;
@@ -1740,7 +2036,22 @@ $('btn-capture').addEventListener('click',()=>{
 /* ── Photo review ── */
 function initReview(){
   $('rev-img').src=capturedUrl;
-  $('rev-room-label').textContent=curRoom.displayName;
+  if(guidedCoverPhotoMode){
+    $('rev-room-label').textContent='Cover Photo';
+    selPrimary=null;selSubs=new Set();$('review-note').value='';
+    revIsCover=false;
+    $('btn-save').textContent='✓ Use as Cover';
+    $('btn-take-another').style.display='none';
+    $('rev-cover-btn').style.display='none';
+    $('rev-retake').style.display='';
+    $('rev-close').textContent='✕ Discard';
+    $('rev-close').title='Discard photo';
+    stopSpeak();renderAllReasons();renderTagPills();
+    return;
+  }
+  $('btn-take-another').style.display='';
+  $('rev-cover-btn').style.display='';
+  $('rev-room-label').textContent=curRoom.displayName+(curRoom.isOrigin?' · 🎯 Origin':'');
   const lt=lastTags[curRoom.displayName];
   if(lt&&lt._keepForNext){
     selPrimary=lt.primary;selSubs=new Set(lt.subs||[]);$('review-note').value=lt.note||'';
@@ -1748,19 +2059,21 @@ function initReview(){
   } else {
     selPrimary=null;selSubs=new Set();$('review-note').value='';
   }
-  revIsCover=curRoom.photos.length===0; // auto-cover for first photo
+  revIsCover=curRoom.photos.length===0;
   $('btn-save').textContent='✓ Save';
   $('btn-take-another').textContent='+ Another';
   $('rev-cover-btn').textContent=revIsCover?'★':'☆';
   $('rev-cover-btn').classList.toggle('on',revIsCover);
   $('rev-retake').style.display='';
+  $('rev-close').textContent='✕ Discard';
+  $('rev-close').title='Discard photo';
   stopSpeak();
   renderAllReasons();renderTagPills();
 }
 function initEditReview(){
   const p=editingPhoto;
   $('rev-img').src=p.dataUrl;
-  $('rev-room-label').textContent=curRoom.displayName;
+  $('rev-room-label').textContent=curRoom.displayName+(curRoom.isOrigin?' · 🎯 Origin':'');
   selPrimary=p.primary;selSubs=new Set(p.sub?p.sub.split(', ').filter(Boolean):[]);
   $('review-note').value=p.note||'';
   revIsCover=p.isCover;
@@ -1768,12 +2081,19 @@ function initEditReview(){
   $('btn-take-another').textContent='🗑 Delete';
   $('rev-cover-btn').textContent=revIsCover?'★':'☆';
   $('rev-cover-btn').classList.toggle('on',revIsCover);
-  $('rev-retake').style.display='none'; // no retake when editing saved photo
+  $('rev-retake').style.display='none';
+  $('rev-close').textContent='← Back';
+  $('rev-close').title='Back without saving';
   stopSpeak();
   renderAllReasons();renderTagPills();
 }
 function renderAllReasons(){
   const grid=$('primary-grid');grid.innerHTML='';
+  if(guidedCoverPhotoMode){
+    grid.innerHTML='<div style="padding:8px 0;font-size:13px;color:var(--text-muted);text-align:center">No tagging needed for cover photos</div>';
+    const sg=$('sub-grid');if(sg)sg.innerHTML='';
+    syncReviewFooter();return;
+  }
   if(selPrimary){
     // Collapsed: single amber chip + change link
     const r=findReason(selPrimary);
@@ -1822,7 +2142,7 @@ function renderSubPanel(){
   });
 }
 function syncReviewFooter(){
-  $('review-panel-footer').style.display=(selPrimary||editingPhoto)?'flex':'none';
+  $('review-panel-footer').style.display=(guidedCoverPhotoMode||selPrimary||editingPhoto)?'flex':'none';
 }
 function renderTagPills(){
   const el=$('rev-tag-pills');el.innerHTML='';
@@ -1835,12 +2155,17 @@ $('review-note').addEventListener('input',renderTagPills);
 // X = discard photo + return to room grid
 $('rev-close').addEventListener('click',()=>{
   stopSpeak();editingPhoto=null;capturedUrl='';
+  if(guidedCoverPhotoMode){
+    guidedCoverPhotoMode=false;
+    while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
+    go('scr-wiz2');
+    return;
+  }
   if(stack[stack.length-1]==='scr-review')stack.pop();
   if(stack[stack.length-1]==='scr-camera')stack.pop();
   const dest=stack[stack.length-1]||'scr-room';
   go(dest);
 });
-// Retake = go back to camera
 $('rev-retake').addEventListener('click',()=>{stopSpeak();editingPhoto=null;goBack();});
 $('rev-cover-btn').addEventListener('click',()=>{
   revIsCover=!revIsCover;
@@ -1859,14 +2184,25 @@ function doSavePhoto(){
 
 // Save → reset tags → back to room grid
 $('btn-save').addEventListener('click',()=>{
+  if(guidedCoverPhotoMode){
+    window._wizCoverPhoto=capturedUrl;
+    guidedCoverPhotoMode=false;
+    capturedUrl='';stopSpeak();
+    // Pop camera + review from stack and go to wiz2
+    while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
+    go('scr-wiz2');
+    showToast('Cover photo saved');
+    return;
+  }
   if(editingPhoto){
     editingPhoto.primary=selPrimary||PRIMARY_REASONS[0].code;
     editingPhoto.sub=[...selSubs].join(', ');editingPhoto.note=$('review-note').value.trim();
-    if(revIsCover){curRoom.photos.forEach(ph=>ph.isCover=false);editingPhoto.isCover=true;}
+    if(revIsCover){curRoom.photos.forEach(ph=>ph.isCover=false);editingPhoto.isCover=true;showToast('★ Cover photo set');}
     else{editingPhoto.isCover=false;}
     editingPhoto=null;stopSpeak();goBack();
   } else {
     doSavePhoto();
+    if(revIsCover)showToast('★ Cover photo set');
     selPrimary=null;selSubs=new Set();
     lastTags[curRoom.displayName]=null;
     stopSpeak();goBack();
@@ -1920,15 +2256,9 @@ function stopSpeak(){
 }
 
 /* ── Room Impact Assessment sheet ── */
-function openAssessSheet(){
-  // Build a working copy: start from full effective (inherited) severity so user sees current values
-  assessRoomSev=JSON.parse(JSON.stringify(effectiveSev(curRoom)));
-  // Ensure all keys present
-  LOSS_TYPES.forEach(lt=>{if(!assessRoomSev[lt.code])assessRoomSev[lt.code]={sev:0,details:{}};});
-
-  // Show inherited (order + floor) chips as context — read-only reference
-  const inherited=effectiveSev(null,curFloorIdx); // order+floor only
-  const row=$('assess-inherited-row');row.innerHTML='';
+function renderAssessInherited(elId){
+  const inherited=effectiveSev(null,curFloorIdx);
+  const row=$(elId);row.innerHTML='';
   let anyInherited=false;
   LOSS_TYPES.forEach(lt=>{
     const s=inherited[lt.code];
@@ -1939,14 +2269,33 @@ function openAssessSheet(){
       chip.textContent=lt.icon+' '+lt.label+' '+s.sev+detailStr;row.appendChild(chip);
     }
   });
-  if(!anyInherited){
-    const chip=document.createElement('span');chip.className='inherited-sev-chip';chip.textContent='No inherited severity';row.appendChild(chip);
-  }
-
+  if(!anyInherited){const chip=document.createElement('span');chip.className='inherited-sev-chip';chip.textContent='No inherited severity';row.appendChild(chip);}
+}
+function openAssessSheet(){
+  assessRoomSev=JSON.parse(JSON.stringify(effectiveSev(curRoom)));
+  LOSS_TYPES.forEach(lt=>{if(!assessRoomSev[lt.code])assessRoomSev[lt.code]={sev:0,details:{}};});
+  renderAssessInherited('assess-inherited-row');
+  renderAssessInherited('assess-inherited-detail');
   renderLossCards('assess-loss-cards',assessRoomSev,'assess');
+  $('assess-intro').style.display='block';
+  $('assess-detail').style.display='none';
   openSheet('sheet-room-assess');
 }
 $('assess-skip').addEventListener('click',()=>closeSheet('sheet-room-assess'));
+$('assess-confirm-applies').addEventListener('click',()=>{
+  curRoom.severity=null;curRoom.assessed=true;
+  closeSheet('sheet-room-assess');
+  showToast('Order severity applies');
+  renderRoom();renderOrder();
+});
+$('assess-modify').addEventListener('click',()=>{
+  $('assess-intro').style.display='none';
+  $('assess-detail').style.display='block';
+});
+$('assess-back').addEventListener('click',()=>{
+  $('assess-detail').style.display='none';
+  $('assess-intro').style.display='block';
+});
 $('assess-not-affected').addEventListener('click',()=>{
   const clr=emptySev();
   curRoom.severity=clr;curRoom.assessed=true;curRoom.notAffected=true;curRoom.nothingForUs=false;
@@ -2091,12 +2440,32 @@ $('scope-confirm').addEventListener('click',()=>{
   closeSheet('sheet-scope-review');
   showToast('✓ Scope marked complete');
   renderOrder();
-  renderOrders();  // update order card badge
+  renderOrders();
+  go('scr-orders');
+});
+
+// Room summary sheet (guided mode)
+$('room-summary-back').addEventListener('click',()=>{
+  closeSheet('sheet-room-summary');
+  curRoom.isDone=false;
+});
+let guidedShowContinue=false;
+$('room-summary-confirm').addEventListener('click',()=>{
+  closeSheet('sheet-room-summary');
+  if(guidedMode)guidedShowContinue=true;
+  while(stack.length>1 && stack[stack.length-1]!=='scr-order')stack.pop();
+  go('scr-order');
+  showToast('✓ '+curRoom.displayName+' marked done');
 });
 
 /* Close sheets on backdrop tap */
 document.querySelectorAll('.sheet-overlay').forEach(o=>{
-  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+  o.addEventListener('click',function(e){
+    if(e.target===this){
+      this.classList.remove('open');
+      if(this.id==='sheet-room-summary'&&curRoom)curRoom.isDone=false;
+    }
+  });
 });
 
 /* ── Seed data ── */
