@@ -159,7 +159,7 @@
     .review-badge.cover{background:rgba(255,255,255,.25);color:#fff;border-color:rgba(255,255,255,.4)}
     .tag-pills{display:flex;flex-wrap:wrap;gap:7px}
     .tag-pill{background:rgba(255,255,255,.94);color:#111;padding:7px 14px;border-radius:8px;font-size:15px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-    .tag-pill-note{font-size:16px;padding:9px 16px;background:rgba(0,0,0,.55);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+    .tag-pill-note{font-size:19px;padding:10px 18px;background:rgba(0,0,0,.78);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4);font-weight:600;line-height:1.35}
     .review-panel{flex:0 0 auto;max-height:52%;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-top:1px solid rgba(255,255,255,.08)}
     .review-panel-scroll{flex:1;overflow-y:auto;padding:8px 14px 0}
     .review-panel-footer{flex-shrink:0;padding:10px 16px 16px;background:var(--surface);border-top:1px solid var(--border);display:none;gap:10px}
@@ -174,6 +174,9 @@
     .reason-label{font-size:13px;font-weight:600;color:var(--text)}
     .reason-btn.full{grid-column:1/-1}
     .sub-section-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+    .sub-dept-toggle{background:none;border:1.5px solid var(--border);border-radius:var(--r-xs);padding:8px 12px;font-size:13px;font-weight:600;color:var(--text-sec);cursor:pointer;font-family:var(--font);width:100%;text-align:left}
+    .sub-dept-toggle:hover{background:var(--surface2);border-color:var(--accent-border)}
+    .sub-dept-toggle.open{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark)}
     .note-wrap{margin-top:14px}
     .note-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
     .note-input{width:100%;padding:11px 13px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--r-xs);background:var(--surface);color:var(--text);font-family:var(--font);resize:none;outline:none}
@@ -193,14 +196,18 @@
     /* ── Room screen ── */
     .room-header-area{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;flex-shrink:0}
     .room-breadcrumb{font-family:var(--mono);font-size:12px;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;cursor:pointer;font-weight:700;opacity:1}
-    .room-header-row{display:flex;align-items:center;margin-bottom:12px}
+    .room-header-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
     .room-title{font-size:22px;font-weight:800;letter-spacing:-.4px;cursor:pointer}
     .room-status-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;cursor:pointer}
     .room-status-na{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
     .room-status-nfu{background:#f8fafc;color:var(--text-muted);border:1px solid var(--border)}
     .room-title:hover{color:var(--accent-dark)}
-    .room-cam-fab{width:42px;height:42px;border-radius:21px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow-md)}
-    .room-toolbar{display:flex;gap:8px;padding-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+    .room-done-btn{height:36px;padding:0 14px;border-radius:18px;border:1.5px solid var(--accent);background:var(--accent-light);font-size:13px;font-weight:700;color:var(--accent-dark);cursor:pointer;font-family:var(--font);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .room-done-btn.done{background:var(--success);border-color:var(--success);color:#fff}
+    .room-cam-fab{width:42px;height:42px;border-radius:21px;background:var(--accent-light);border:2px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .room-toolbar-wrap{overflow-x:scroll;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding-bottom:12px;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px;scrollbar-width:none;-ms-overflow-style:none}
+    .room-toolbar-wrap::-webkit-scrollbar{display:none}
+    .room-toolbar{display:inline-flex;gap:8px;flex-wrap:nowrap;min-width:min-content}
     .room-toolbar .toolbar-btn{flex-shrink:0}
     .toolbar-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--text-sec);display:flex;align-items:center;gap:5px}
     .toolbar-btn.active{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent-dark)}
@@ -315,6 +322,10 @@
     /* Cover star on review screen */
     .review-cover-btn{width:34px;height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
     .review-cover-btn.on{background:rgba(245,158,11,.88)}
+    .review-open-btn{width:34px;height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .review-open-btn:hover{background:rgba(0,0,0,.65)}
+    .photo-fullscreen-overlay{position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer}
+    .photo-fullscreen-overlay img{max-width:100%;max-height:100%;object-fit:contain;pointer-events:none}
     /* Discard link on review screen */
     .rev-discard-link{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:rgba(255,255,255,.6);text-decoration:underline;text-underline-offset:2px;padding:4px 8px;display:none}
     .rev-discard-link.visible{display:inline-block}
@@ -540,15 +551,18 @@
           <div class="room-title" id="room-title" title="Tap to switch room"></div>
           <div id="room-status-badge" style="display:none;margin-top:2px"></div>
         </div>
+        <button class="room-done-btn" id="btn-room-done" title="Mark room done">✓ Done</button>
         <button class="room-cam-fab" id="room-cam-fab">📷</button>
       </div>
-      <div class="room-toolbar">
-        <button class="toolbar-btn" id="btn-room-sev" title="View and edit room severity">📊 Sev</button>
-        <button class="toolbar-btn" id="btn-search-toggle">🔍 Search</button>
-        <button class="toolbar-btn" id="btn-filter-toggle">⚡ Filter</button>
-        <button class="toolbar-btn" id="btn-review-swipe" title="Swipe through photos">👁 Review</button>
-        <button class="toolbar-btn" id="btn-select-toggle">☑ Select</button>
-        <button class="toolbar-btn" id="btn-origin-toggle">🎯 Origin</button>
+      <div class="room-toolbar-wrap">
+        <div class="room-toolbar">
+          <button class="toolbar-btn" id="btn-room-sev" title="View and edit room severity">📊 Sev</button>
+          <button class="toolbar-btn" id="btn-search-toggle">🔍 Search</button>
+          <button class="toolbar-btn" id="btn-filter-toggle">⚡ Filter</button>
+          <button class="toolbar-btn" id="btn-review-swipe" title="Swipe through photos">👁 Review</button>
+          <button class="toolbar-btn" id="btn-select-toggle">☑ Select</button>
+          <button class="toolbar-btn" id="btn-origin-toggle">🎯 Origin</button>
+        </div>
       </div>
     </div>
     <div class="search-bar" id="search-bar">
@@ -631,6 +645,7 @@
       <div class="review-hud">
         <button class="review-close" id="rev-close">✕ Discard</button>
         <div style="display:flex;gap:8px;align-items:center">
+          <button class="review-open-btn" id="rev-open-btn" title="Open / View full size">⛶</button>
           <button class="cam-close" id="rev-retake" title="Retake photo">↺</button>
           <button class="review-cover-btn" id="rev-cover-btn" title="Set as cover photo">☆</button>
         </div>
@@ -655,6 +670,12 @@
           <div id="sub-panel" style="display:none;margin-top:10px">
             <div class="sub-section-label" id="sub-section-label"></div>
             <div class="reason-grid" id="sub-grid"></div>
+            <div id="sub-dept-panel" style="display:none;margin-top:10px">
+              <button type="button" class="sub-dept-toggle" id="sub-dept-toggle">Departments ›</button>
+              <div id="sub-dept-grid-wrap" style="display:none;margin-top:8px">
+                <div class="reason-grid" id="sub-dept-grid"></div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="note-wrap">
@@ -829,9 +850,9 @@
       <div class="sheet-handle"></div>
       <div class="sheet-title">Add Floor</div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-white btn-lg btn-full" id="add-floor-basement">↓ Basement</button>
-        <button class="btn btn-white btn-lg btn-full" id="add-floor-standard">+ Numbered Floor</button>
         <button class="btn btn-white btn-lg btn-full" id="add-floor-attic">↑ Attic</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-standard">+ Numbered Floor</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-basement">↓ Basement</button>
       </div>
       <div style="margin-top:10px;text-align:center">
         <button id="add-floor-cancel" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--text-muted)">Cancel</button>
@@ -867,6 +888,11 @@
   </div>
 </div><!-- /phone -->
 
+  <!-- Full-screen photo viewer (from review) -->
+  <div class="photo-fullscreen-overlay" id="photo-fullscreen-overlay" style="display:none">
+    <img id="photo-fullscreen-img" alt="" />
+  </div>
+
 <script>
 (function(){
 // Alpha-sorted primary reasons
@@ -887,18 +913,18 @@ const MORE_REASONS=[
   {code:'NTD',label:'Nothing for Us'},
   {code:'NWC',label:'Not Worth Cleaning'},
   {code:'OV', label:'Other Vendor'},
-  {code:'SO', label:'Storage Only'},
   {code:'UND',label:'Undecided'},
 ];
 const SUB_MAP={
   'BEF':['Sun Damage','Existing Conditions','Pet Stains','Worn','Clutter'],
-  'PU': ['All','Window Treats','Rugs','Bedding','Exposed','Clothes','Closets','Drawers'],
+  'PU': ['Rush','Short Term','Long Term','Test','Storage Only','Donate/Dispose'],
+  'PU_DEPT':['All','Window Treats','Rugs','Bedding','Exposed','Clothes','Closets','Drawers'],
   'IH': ['Upholstery','Drapes','Rugs','Electronics'],
   'SVC':['Unpacking','Stain Removal','Fold AMAP','Photo Inventory','Re-hanging','Scaffolding','Dispose','PPE','Content Manip','Moving'],
   'TLI':['We are writing'],
   'NA':[],'CC':[],
   'CTW':['Dispose','Donate'],
-  'COE':[],'DNT':[],'NTD':[],'NWC':[],'OV':[],'SO':[],'UND':[],
+  'COE':[],'DNT':[],'NTD':[],'NWC':[],'OV':[],'UND':[],
 };
 const LOSS_TYPES=[
   {code:'fire',  label:'Fire',     icon:'🔥', details:['Heat','Soot','Odor','Ext. Power','Rem. Debris','FF Damage']},
@@ -1651,6 +1677,7 @@ function renderRoom(){
   $('btn-search-toggle').classList.remove('active');
   $('btn-origin-toggle').classList.toggle('active',!!curRoom.isOrigin);
   $('btn-room-sev').classList.toggle('active',!!(curRoom.severity&&Object.values(curRoom.severity).some(v=>v&&v.sev>0)));
+  $('btn-room-done').classList.toggle('done',!!curRoom.isDone);
   $('filter-row').style.display='none';
   $('search-bar').classList.remove('visible');
   $('search-input').value='';
@@ -1667,6 +1694,15 @@ function renderRoom(){
 
 // Breadcrumb → back to order
 $('room-breadcrumb').addEventListener('click',()=>goBack());
+$('btn-room-done').addEventListener('click',()=>{
+  const hasPhotos=curRoom.photos.length>0;
+  const hasExplicitStatus=curRoom.notAffected||curRoom.nothingForUs;
+  if(!hasPhotos&&!hasExplicitStatus){
+    if(confirm(curRoom.displayName+' has no photos and no instructions.\nMark it done anyway?')){curRoom.isDone=true;openRoomSummary();}
+  } else {
+    curRoom.isDone=true;openRoomSummary();
+  }
+});
 // Room title → switch room
 $('room-title').addEventListener('click',()=>openSwitchRoomSheet());
 
@@ -1749,7 +1785,7 @@ function updateSwipeDisplay(){
   html+='<div class="tag-line"><span class="tag-pill">'+(r?r.label:p.primary||'')+'</span>';
   subs.forEach(s=>{html+='<span class="tag-pill">'+esc(s)+'</span>';});
   html+='</div>';
-  if(p.note)html+='<div class="swipe-note" style="font-size:15px;margin-top:8px;padding:10px 14px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;line-height:1.4">'+esc(p.note)+'</div>';
+  if(p.note)html+='<div class="swipe-note" style="font-size:18px;margin-top:8px;padding:12px 16px;background:rgba(0,0,0,.78);color:#fff;border-radius:8px;line-height:1.4;font-weight:600">'+esc(p.note)+'</div>';
   $('swipe-overlay').innerHTML=html;
 }
 $('btn-review-swipe').addEventListener('click',openSwipeView);
@@ -2032,7 +2068,6 @@ function openRoomSummary(){
     html+='<img src="'+cover.dataUrl+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block"/>';
     html+='</div>';
     coverEl.innerHTML=html;
-    if(isCoverPhoto){const b=document.createElement('span');b.className='cover-badge';b.textContent='★ Cover';badgesEl.appendChild(b);}
   } else {
     coverEl.innerHTML='<div style="padding:20px;color:var(--text-muted);font-size:13px">No photos taken</div>';
   }
@@ -2110,6 +2145,7 @@ function initReview(){
     $('btn-save').textContent='✓ Use as Cover';
     $('btn-take-another').style.display='none';
     $('rev-cover-btn').style.display='none';
+    $('rev-open-btn').style.display='none';
     $('rev-retake').style.display='';
     $('rev-close').textContent='✕ Discard';
     $('rev-close').title='Discard photo';
@@ -2118,6 +2154,7 @@ function initReview(){
   }
   $('btn-take-another').style.display='';
   $('rev-cover-btn').style.display='';
+  $('rev-open-btn').style.display='';
   $('rev-room-label').textContent=curRoom.displayName;
   syncRevBadges();
   const lt=lastTags[curRoom.displayName];
@@ -2196,11 +2233,12 @@ function renderAllReasons(){
   renderSubPanel();
   syncReviewFooter();
 }
+let subDeptOpen=false;
 function renderSubPanel(){
   const sub=$('sub-panel');
-  if(!selPrimary){sub.style.display='none';return;}
+  if(!selPrimary){sub.style.display='none';$('sub-dept-panel').style.display='none';return;}
   const subs=SUB_MAP[selPrimary]||[];
-  if(!subs.length){sub.style.display='none';return;}
+  if(!subs.length){sub.style.display='none';$('sub-dept-panel').style.display='none';return;}
   sub.style.display='block';
   const r=findReason(selPrimary);
   $('sub-section-label').textContent=(r?r.label:'')+' Details';
@@ -2215,7 +2253,34 @@ function renderSubPanel(){
     });
     grid.appendChild(b);
   });
+  const deptPanel=$('sub-dept-panel');
+  const deptList=SUB_MAP[selPrimary+'_DEPT'];
+  if(selPrimary!=='PU')subDeptOpen=false;
+  if(selPrimary==='PU'&&deptList){
+    deptPanel.style.display='block';
+    const toggle=$('sub-dept-toggle');
+    toggle.textContent=subDeptOpen?'Departments ▾':'Departments ›';
+    toggle.className='sub-dept-toggle'+(subDeptOpen?' open':'');
+    $('sub-dept-grid-wrap').style.display=subDeptOpen?'block':'none';
+    const deptGrid=$('sub-dept-grid');deptGrid.innerHTML='';
+    deptList.forEach((s,i)=>{
+      const last=i===deptList.length-1&&deptList.length%2===1;
+      const b=document.createElement('button');b.type='button';b.className='reason-btn'+(last?' full':'')+(selSubs.has(s)?' selected':'');
+      b.innerHTML=`<span class="reason-num">${i+1}</span><span class="reason-label">${esc(s)}</span>`;
+      b.addEventListener('click',()=>{
+        if(selSubs.has(s))selSubs.delete(s);else selSubs.add(s);
+        renderSubPanel();renderTagPills();
+      });
+      deptGrid.appendChild(b);
+    });
+  } else {
+    deptPanel.style.display='none';
+  }
 }
+$('sub-dept-toggle').addEventListener('click',()=>{
+  subDeptOpen=!subDeptOpen;
+  renderSubPanel();
+});
 function syncReviewFooter(){
   $('review-panel-footer').style.display=(guidedCoverPhotoMode||selPrimary||editingPhoto)?'flex':'none';
 }
@@ -2240,6 +2305,15 @@ $('rev-close').addEventListener('click',()=>{
   if(stack[stack.length-1]==='scr-camera')stack.pop();
   const dest=stack[stack.length-1]||'scr-room';
   go(dest);
+});
+$('rev-open-btn').addEventListener('click',()=>{
+  const src=$('rev-img').src;
+  if(!src)return;
+  $('photo-fullscreen-img').src=src;
+  $('photo-fullscreen-overlay').style.display='flex';
+});
+$('photo-fullscreen-overlay').addEventListener('click',()=>{
+  $('photo-fullscreen-overlay').style.display='none';
 });
 $('rev-retake').addEventListener('click',()=>{stopSpeak();editingPhoto=null;goBack();});
 $('rev-cover-btn').addEventListener('click',()=>{
@@ -2524,6 +2598,8 @@ $('scope-confirm').addEventListener('click',()=>{
 $('room-summary-back').addEventListener('click',()=>{
   closeSheet('sheet-room-summary');
   curRoom.isDone=false;
+  while(stack.length>1&&(stack[stack.length-1]==='scr-camera'||stack[stack.length-1]==='scr-review'))stack.pop();
+  go('scr-room');
 });
 let guidedShowContinue=false;
 $('room-summary-confirm').addEventListener('click',()=>{
@@ -2539,7 +2615,13 @@ document.querySelectorAll('.sheet-overlay').forEach(o=>{
   o.addEventListener('click',function(e){
     if(e.target===this){
       this.classList.remove('open');
-      if(this.id==='sheet-room-summary'&&curRoom)curRoom.isDone=false;
+      if(this.id==='sheet-room-summary'&&curRoom){
+        curRoom.isDone=false;
+        if($('scr-camera').classList.contains('active')){
+          while(stack.length>1&&(stack[stack.length-1]==='scr-camera'||stack[stack.length-1]==='scr-review'))stack.pop();
+          go('scr-room');
+        }
+      }
     }
   });
 });
