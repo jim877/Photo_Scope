@@ -1,0 +1,24 @@
+{
+  "name": "Photo Scope",
+  "short_name": "PhotoScope",
+  "description": "Guided photo walkthrough for damage assessment",
+  "start_url": "/preview.html",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%23f59e0b'/%3E%3Cpath fill='%23fff' d='M136 68h-10.4l-7.2-12H73.6l-7.2 12H56c-6.6 0-12 5.4-12 12v56c0 6.6 5.4 12 12 12h80c6.6 0 12-5.4 12-12V80c0-6.6-5.4-12-12-12zm-40 56c-13.3 0-24-10.7-24-24s10.7-24 24-24 24 10.7 24 24-10.7 24-24 24zm0-40c-8.8 0-16 7.2-16 16s7.2 16 16 16 16-7.2 16-16-7.2-16-16-16z'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23f59e0b'/%3E%3Cpath fill='%23fff' d='M362 180h-27.7l-19.2-32H196.9l-19.2 32H150c-17.7 0-32 14.3-32 32v149.3c0 17.7 14.3 32 32 32h212c17.7 0 32-14.3 32-32V212c0-17.7-14.3-32-32-32zm-106 149.3c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64zm0-106.6c-23.6 0-42.7 19.1-42.7 42.7S232.4 308 256 308s42.7-19.1 42.7-42.7-19.1-42.6-42.7-42.6z'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
