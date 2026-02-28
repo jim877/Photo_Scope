@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Photo Scope</title>
+  <style>
+    :root {
+      --bg:#f9fafb; --surface:#fff; --surface2:#f3f4f6;
+      --border:#e5e7eb; --border-strong:#d1d5db;
+      --accent:#f59e0b; --accent-dark:#d97706; --accent-light:#fef3c7; --accent-border:#fde68a;
+      --text:#111827; --text-sec:#6b7280; --text-muted:#9ca3af;
+      --danger:#ef4444; --danger-light:#fef2f2;
+      --success:#10b981; --success-light:#d1fae5;
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:0 4px 12px rgba(0,0,0,.1); --shadow-lg:0 10px 30px rgba(0,0,0,.15);
+      --r:14px; --r-sm:10px; --r-xs:7px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      --mono:'SF Mono','Courier New',Courier,monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:#e8eaed;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;-webkit-font-smoothing:antialiased}
+
+    /* ── Phone ── */
+    .phone{width:393px;height:852px;max-width:100%;max-height:95vh;background:var(--surface);border-radius:44px;overflow:hidden;box-shadow:0 0 0 1.5px #c0c0c0,var(--shadow-lg),0 30px 80px rgba(0,0,0,.3);display:flex;flex-direction:column;position:relative}
+    .notch{height:46px;background:var(--surface);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;flex-shrink:0;border-bottom:1px solid var(--border)}
+    .notch-pill{width:120px;height:24px;background:#1a1a1a;border-radius:16px}
+
+    /* ── Screens ── */
+    .screen{flex:1;background:var(--bg);display:none;flex-direction:column;overflow:hidden}
+    .screen.active{display:flex}
+    .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+    /* ── Nav ── */
+    .nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .nav-back{background:none;border:none;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;color:var(--accent-dark);font-size:20px;flex-shrink:0}
+    .nav-back:hover{background:var(--accent-light)}
+    .nav-title{font-size:17px;font-weight:700;flex:1;color:var(--text);letter-spacing:-.3px}
+
+    /* ── Section label ── */
+    .sec-label{font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);padding:16px 20px 8px}
+
+    /* ── Cards ── */
+    .card{background:var(--surface);margin:0 16px 8px;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;cursor:pointer}
+    .card:active{background:var(--surface2)}
+    .card-row{display:flex;align-items:center;padding:14px 16px;gap:14px}
+    .card-icon{width:42px;height:42px;background:var(--accent-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+    .card-icon img{width:100%;height:100%;object-fit:cover}
+    .card-body{flex:1;min-width:0}
+    .card-title{font-size:16px;font-weight:600;color:var(--text)}
+    .card-sub{font-size:13px;color:var(--text-sec);margin-top:2px}
+    .card-badges{display:flex;gap:6px;margin-top:5px;align-items:center;flex-wrap:wrap}
+    .badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px}
+    .badge-pu{background:var(--accent-light);color:var(--accent-dark);border:1px solid var(--accent-border)}
+    .badge-tli{background:var(--danger-light);color:var(--danger)}
+    .badge-ih{background:var(--success-light);color:var(--success)}
+    .badge-photos{background:var(--surface2);color:var(--text-sec);border:1px solid var(--border)}
+    .chevron{color:var(--text-muted);font-size:18px}
+
+    /* ── Buttons ── */
+    .btn{border:none;cursor:pointer;font-family:var(--font);font-weight:600;border-radius:var(--r-sm);transition:opacity .12s,transform .09s;text-align:center}
+    .btn:active{transform:scale(.97);opacity:.9}
+    .btn-lg{padding:15px 20px;font-size:16px}
+    .btn-md{padding:11px 18px;font-size:14px}
+    .btn-sm{padding:7px 14px;font-size:13px}
+    .btn-amber{background:var(--accent);color:#111}
+    .btn-amber:hover{background:var(--accent-dark);color:#fff}
+    .btn-white{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-full{width:100%;display:block}
+    .btn-add-room-bar{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.6px}
+
+    /* ── Toast ── */
+    .toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:30px;font-size:14px;font-weight:600;white-space:nowrap;z-index:200;animation:toastIn .2s ease;pointer-events:none}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* ── Wizard ── */
+    .wizard-progress{display:flex;gap:6px;padding:16px 20px 0}
+    .wizard-step-bar{flex:1;height:3px;border-radius:3px;background:var(--border)}
+    .wizard-step-bar.done,.wizard-step-bar.active{background:var(--accent)}
+    .wizard-step-label{font-family:var(--mono);font-size:11px;color:var(--text-muted);padding:8px 20px 0;text-transform:uppercase;letter-spacing:.7px}
+    .wizard-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 24px 16px}
+    .wizard-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+    .wizard-sub{font-size:14px;color:var(--text-sec);margin-bottom:28px}
+    .wizard-footer{padding:16px 20px 20px;flex-shrink:0}
+    .floor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-bottom:24px}
+    .floor-btn{padding:18px 0;font-size:22px;font-weight:800;border-radius:var(--r-sm);background:var(--surface2);border:2px solid var(--border);cursor:pointer;color:var(--text);font-family:var(--font);transition:all .12s}
+    .floor-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    .input-field{width:100%;padding:14px 16px;font-size:16px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text);font-family:var(--font);margin-bottom:20px;outline:none}
+    .input-field:focus{border-color:var(--accent)}
+    .input-label{font-size:13px;font-weight:600;color:var(--text-sec);margin-bottom:8px;display:block;width:100%}
+    .offering-row{width:100%;display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;margin-bottom:10px;transition:all .12s}
+    .offering-row.selected{border-color:var(--accent);background:var(--accent-light)}
+    .offering-num{font-family:var(--mono);font-size:13px;color:var(--text-muted);width:20px}
+    .offering-label{font-size:16px;font-weight:600;flex:1}
+    .offering-check{font-size:18px;color:var(--accent-dark)}
+
+    /* ── Sheets ── */
+    .sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;z-index:80}
+    .sheet-overlay.open{display:flex}
+    .sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:24px 20px 32px;max-height:82%;overflow-y:auto;animation:slideUp .22s ease}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .sheet-handle{width:36px;height:4px;border-radius:3px;background:var(--border);margin:0 auto 20px}
+    .sheet-title{font-size:18px;font-weight:700;margin-bottom:16px}
+    .sheet-input{width:100%;padding:12px 14px;font-size:15px;border:1.5px solid var(--border);border-radius:var(--r-xs);background:var(--surface2);color:var(--text);font-family:var(--font);outline:none;margin-bottom:12px}
+    .sheet-input:focus{border-color:var(--accent)}
+    .sheet-actions{display:flex;gap:10px;margin-top:12px}
+    .sheet-actions .btn{flex:1}
+
+    /* ── Room presets ── */
+    .room-preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .room-preset{padding:12px 6px;border-radius:var(--r-xs);background:var(--surface2);border:1.5px solid var(--border);font-size:14px;font-weight:600;cursor:pointer;text-align:center;color:var(--text);font-family:var(--font);transition:all .12s}
+    .room-preset:hover{background:var(--accent-light);border-color:var(--accent-border)}
+
+    /* ── Confirm dialog ── */
+    .confirm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:90;padding:32px}
+    .confirm-overlay.open{display:flex}
+    .confirm-box{background:var(--surface);border-radius:var(--r);padding:24px;width:100%;text-align:center;box-shadow:var(--shadow-md)}
+    .confirm-box p{font-size:16px;font-weight:600;margin-bottom:18px}
+    .confirm-actions{display:flex;gap:10px}
+    .confirm-actions .btn{flex:1}
+
+    /* ── Camera ── */
+    .cam-screen{background:#000!important;padding:0!important}
+    .cam-wrap{flex:1;position:relative;min-height:0}
+    .cam-wrap video,.cam-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .cam-fallback{display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;text-align:center;padding:20px;flex-direction:column;gap:12px}
+    .cam-hud{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+    .cam-close{width:36px;height:36px;border-radius:18px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .cam-badge{background:rgba(0,0,0,.55);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+    /* Floating shutter — no footer bar */
+    .cap-float{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:10}
+    .cap-ring{width:82px;height:82px;border-radius:50%;border:3px solid rgba(255,255,255,.22);box-shadow:0 0 0 2.5px rgba(245,158,11,.65),0 0 20px rgba(245,158,11,.28),0 4px 16px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;transition:transform .12s}
+    .cap-ring:hover{transform:scale(1.04)}
+    .cap-btn{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#ffffff 0%,#e2e2e2 100%);border:none;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 3px 10px rgba(0,0,0,.5),inset 0 1px 3px rgba(255,255,255,.9),inset 0 -1px 2px rgba(0,0,0,.1)}
+    .cap-btn:active{transform:scale(.87);box-shadow:0 1px 5px rgba(0,0,0,.4)}
+    .cap-btn:disabled{opacity:.3;cursor:default}
+
+    /* ── Photo review ── */
+    .review-screen{padding:0!important;background:#000!important}
+    .review-photo-area{height:282px;flex-shrink:0;position:relative;background:#111;overflow:hidden}
+    .review-photo-area img{width:100%;height:100%;object-fit:cover}
+    .review-hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;z-index:5}
+    .review-close{width:34px;height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .review-tags-overlay{position:absolute;bottom:0;left:0;right:0;padding:32px 14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+    .review-room-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;font-family:var(--mono)}
+    .tag-pills{display:flex;flex-wrap:wrap;gap:7px}
+    .tag-pill{background:rgba(255,255,255,.94);color:#111;padding:7px 14px;border-radius:8px;font-size:15px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+    .review-panel{flex:1;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+    .review-panel-scroll{flex:1;overflow-y:auto;padding:10px 14px 0}
+    .review-panel-footer{flex-shrink:0;padding:12px 16px 20px;background:var(--surface);border-top:1px solid var(--border);display:none;gap:10px}
+    .review-panel-footer .btn{flex:1}
+
+    /* ── Reason grid ── */
+    .reason-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .reason-btn{padding:9px 8px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;font-family:var(--font);transition:all .12s;display:flex;align-items:center;gap:6px}
+    .reason-btn:hover{border-color:var(--accent-border);background:var(--accent-light)}
+    .reason-btn.selected{border-color:var(--accent);background:var(--accent-light)}
+    .reason-num{font-family:var(--mono);font-size:11px;color:var(--text-muted);width:16px;flex-shrink:0}
+    .reason-label{font-size:13px;font-weight:600;color:var(--text)}
+    .reason-btn.full{grid-column:1/-1}
+    .sub-section-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+    .note-wrap{margin-top:14px}
+    .note-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+    .note-input{width:100%;padding:11px 13px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--r-xs);background:var(--surface);color:var(--text);font-family:var(--font);resize:none;outline:none}
+    .note-input:focus{border-color:var(--accent)}
+
+    /* ── Speak bar ── */
+    .speak-bar{display:none;margin-bottom:12px;background:var(--text);border-radius:var(--r-xs);padding:10px 14px;align-items:center;gap:10px}
+    .speak-bar.visible{display:flex}
+    .speak-bar.listening{background:var(--danger)}
+    .speak-dot{width:8px;height:8px;border-radius:50%;background:#fff;flex-shrink:0}
+    .speak-bar.listening .speak-dot{animation:blink .7s ease infinite alternate}
+    @keyframes blink{from{opacity:1}to{opacity:.2}}
+    .speak-text{font-size:12px;color:#fff;font-weight:500;flex:1}
+    .speak-stop{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font)}
+
+    /* ── Room screen ── */
+    .room-header-area{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;flex-shrink:0}
+    .room-breadcrumb{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;cursor:pointer;opacity:.7}
+    .room-header-row{display:flex;align-items:center;margin-bottom:12px}
+    .room-title{font-size:22px;font-weight:800;letter-spacing:-.4px;flex:1;cursor:pointer}
+    .room-title:hover{color:var(--accent-dark)}
+    .room-cam-fab{width:42px;height:42px;border-radius:21px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow-md)}
+    .room-toolbar{display:flex;gap:8px;padding-bottom:12px}
+    .toolbar-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--text-sec);display:flex;align-items:center;gap:5px}
+    .toolbar-btn.active{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent-dark)}
+
+    /* ── Search bar ── */
+    .search-bar{padding:8px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:none}
+    .search-bar.visible{display:block}
+    .search-input{width:100%;padding:9px 14px 9px 36px;font-size:14px;border:1.5px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--text);font-family:var(--font);outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
+    .search-input:focus{border-color:var(--accent)}
+    .filter-row{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;flex-shrink:0}
+    .filter-chip{padding:5px 12px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--font);color:var(--text-sec);transition:all .12s}
+    .filter-chip.on{background:var(--accent);border-color:var(--accent-dark);color:#111}
+
+    /* ── Photo grid ── */
+    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 16px}
+    .photo-thumb{border-radius:var(--r-sm);overflow:hidden;cursor:pointer;position:relative;background:var(--surface2);aspect-ratio:4/3;box-shadow:var(--shadow)}
+    .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .photo-thumb-tag{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:20px 9px 8px;color:#fff;font-size:13px;font-weight:700}
+    .photo-thumb-sub{font-size:11px;font-weight:500;opacity:.8}
+    .photo-thumb.sel-thumb{outline:3px solid var(--accent);outline-offset:-3px}
+    .photo-thumb .sel-check{position:absolute;top:7px;left:7px;width:22px;height:22px;border-radius:11px;background:var(--accent);display:none;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+    .photo-thumb.sel-thumb .sel-check{display:flex}
+    /* Cover star — top-right, never overlaps with sel-check (top-left) */
+    .cover-star{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.38);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .15s;z-index:4}
+    .cover-star:hover{background:rgba(0,0,0,.55)}
+    .cover-star.on{background:rgba(245,158,11,.88)}
+
+    /* ── Bulk bar ── */
+    .bulk-bar{display:none;flex-shrink:0;background:var(--surface);border-top:1px solid var(--border)}
+    .bulk-bar.visible{display:block}
+    .bulk-top{display:flex;align-items:center;padding:10px 16px;gap:8px}
+    .bulk-count{font-size:14px;font-weight:700;flex:1}
+    .bulk-sel-all{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--accent-dark)}
+    .bulk-cancel{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text-sec)}
+    .bulk-actions{display:flex;gap:8px;padding:0 16px 14px}
+    .bulk-action-btn{flex:1;padding:11px 0;border-radius:var(--r-xs);border:1.5px solid var(--border);background:var(--surface2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:5px}
+    .bulk-action-btn.danger{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
+
+    /* ── Empty states ── */
+    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;gap:10px}
+    .empty-icon{font-size:48px;opacity:.25}
+    .empty-title{font-size:17px;font-weight:700;color:var(--text)}
+    .empty-sub{font-size:14px;color:var(--text-sec)}
+    .empty-link{margin-top:4px;background:none;border:none;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:var(--accent-dark)}
+
+    /* ── Orders hero ── */
+    .orders-hero{padding:28px 24px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+    .orders-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .logo-icon{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .logo-text{font-size:22px;font-weight:900;letter-spacing:-.5px}
+    .logo-text span{color:var(--accent-dark)}
+    .orders-tagline{font-size:13px;color:var(--text-sec)}
+
+    /* ── Collapsible floor sections on Order screen ── */
+    /* ── Floor section ── */
+    .floor-section{margin-bottom:14px;border-radius:var(--r-md);border:1px solid var(--border);overflow:hidden;background:var(--surface)}
+    .floor-section-header{display:flex;align-items:center;padding:12px 12px 12px 14px;background:var(--surface2);cursor:pointer;gap:8px;user-select:none;border-left:3px solid var(--accent)}
+    .floor-section-header:active{background:#eceef1}
+    .floor-section-body{flex:1;min-width:0}
+    .floor-section-name{font-size:15px;font-weight:700;color:var(--text)}
+    .floor-section-counts{font-size:12px;color:var(--text-muted);white-space:nowrap;margin-left:auto;padding-right:4px}
+    .floor-section-add{background:none;border:1.5px dashed var(--border);border-radius:7px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent-dark);padding:4px 9px;white-space:nowrap;flex-shrink:0}
+    .floor-section-add:hover{background:var(--accent-light);border-color:var(--accent-border)}
+    .floor-section-arrow{font-size:12px;color:var(--text-muted);transition:transform .18s;flex-shrink:0}
+    .floor-section.collapsed .floor-section-arrow{transform:rotate(-90deg)}
+    .floor-section.collapsed .floor-section-rooms{display:none}
+    /* Room card within a floor section */
+    .floor-room-card{background:var(--surface);cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--border)}
+    .floor-room-card:active{background:var(--surface2)}
+    .floor-room-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted)}
+    .floor-room-thumb img{width:100%;height:100%;object-fit:cover}
+    .floor-room-body{flex:1;min-width:0}
+    .floor-room-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .floor-room-meta{font-size:12px;color:var(--text-sec);margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+    .floor-room-count{font-size:12px;color:var(--text-muted);white-space:nowrap;margin-left:auto;padding-right:2px;flex-shrink:0}
+    .floor-room-empty{padding:14px 16px;font-size:13px;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px solid var(--border)}
+    /* floor not-affected tint */
+    .floor-not-affected .floor-section-header{border-left-color:var(--border);opacity:.7}
+    /* Add floor button row */
+    .add-floor-row{padding:12px 16px 20px;display:flex}
+    .add-floor-btn{background:none;border:1.5px dashed var(--border);border-radius:var(--r-sm);cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--accent-dark);padding:11px 20px;width:100%;display:block;text-align:center}
+    .add-floor-btn:hover{background:var(--accent-light);border-color:var(--accent-border)}
+
+    /* ── Switch-room sheet ── */
+    .room-switch-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer}
+    .room-switch-item:last-child{border-bottom:none}
+    .room-switch-item:hover{background:var(--surface2);margin:0 -4px;padding:11px 4px;border-radius:8px}
+    .room-switch-active{color:var(--accent-dark);font-weight:700}
+    .switch-floor-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);padding:10px 0 4px;border-bottom:1px solid var(--border);margin-bottom:2px}
+
+    /* ── Impact chips (room assess sheet) ── */
+    .impact-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+    .impact-chip{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--text-sec);transition:all .12s;user-select:none}
+    .impact-chip.on{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    .assess-section-lbl{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    /* Impact badges on floor-room-cards */
+    .impact-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.2px}
+    .impact-badge-fire{background:#fef2f2;color:#ef4444;border:1px solid #fecaca}
+    .impact-badge-water{background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe}
+    .impact-badge-clear{background:var(--success-light);color:var(--success);border:1px solid #a7f3d0}
+    /* Reason section divider (primary / more) */
+    .reason-divider{grid-column:1/-1;font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;padding:6px 0 4px;border-top:1px solid var(--border);margin-top:2px}
+    /* Selected reason chip (collapsed state) */
+    .selected-reason-chip{grid-column:1/-1;display:flex;align-items:center;background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--r-sm);padding:10px 14px;gap:10px}
+    .selected-reason-chip span{flex:1;font-size:15px;font-weight:700;color:var(--accent-dark)}
+    .selected-reason-chip .change-btn{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--accent-dark);white-space:nowrap}
+    /* Cover star on review screen */
+    .review-cover-btn{width:34px;height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .review-cover-btn.on{background:rgba(245,158,11,.88)}
+    /* Discard link on review screen */
+    .rev-discard-link{background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:rgba(255,255,255,.6);text-decoration:underline;text-underline-offset:2px;padding:4px 8px;display:none}
+    .rev-discard-link.visible{display:inline-block}
+    /* Floor severity edit button */
+    .floor-sev-btn{background:var(--accent-light);border:1.5px solid var(--accent-border);border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent-dark);padding:3px 7px;white-space:nowrap;flex-shrink:0}
+    .floor-sev-btn-ghost{background:transparent;border-color:var(--border);color:var(--text-muted);font-weight:400}
+    .floor-clear-badge{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;flex-shrink:0}
+    .floor-not-affected{opacity:.55}
+    .wiz-special-floors{display:flex;gap:10px;width:100%;margin-bottom:20px}
+    .wiz-special-btn{flex:1;padding:14px 0;font-size:14px;font-weight:700;border-radius:var(--r-sm);background:var(--surface2);border:2px solid var(--border);cursor:pointer;color:var(--text);font-family:var(--font);transition:all .12s;text-align:center}
+    .wiz-special-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    .wiz-uniform-row{padding:14px 16px 100px}
+    .wiz-uniform-btns{display:flex;gap:10px;margin-top:10px}
+    .wiz-uniform-label{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+    .wiz-uniform-sub{font-size:12px;color:var(--text-muted)}
+    .floor-sev-uniform-row{margin:14px 0 10px;padding:12px;background:var(--surface2);border-radius:var(--r-sm)}
+    .scope-stats{font-size:14px;font-weight:600;color:var(--text);padding:12px;background:var(--surface2);border-radius:var(--r-sm);margin-bottom:12px;text-align:center}
+    .scope-section-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+    .scope-issue-item{font-size:13px;padding:8px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-xs);margin-bottom:6px;color:#92400e}
+    .scope-issue-link{cursor:pointer;text-decoration:underline dotted #f59e0b}
+    .scope-issue-link:active{background:#fef3c7}
+    .scope-ok-banner{font-size:13px;padding:10px 12px;background:var(--success-light);border:1px solid #a7f3d0;border-radius:var(--r-sm);color:var(--success);font-weight:600;margin-bottom:12px;text-align:center}
+    /* Room preset multi-select */
+    .room-preset.on{background:var(--accent-light);border-color:var(--accent);color:#111}
+    .add-room-mode-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .add-room-mode-toggle{background:none;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;color:var(--text-sec);padding:5px 12px;transition:all .12s}
+    .add-room-mode-toggle.on{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark)}
+    /* Loss-type severity cards */
+    .loss-card{border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);margin-bottom:8px;overflow:hidden;transition:border-color .12s}
+    .loss-card.active{border-color:var(--accent)}
+    .loss-card-hdr{display:flex;align-items:center;padding:10px 12px;gap:10px}
+    .loss-card-icon{font-size:17px;flex-shrink:0;width:22px}
+    .loss-card-label{font-size:14px;font-weight:700;flex:1}
+    .loss-card-sev-btns{display:flex;gap:4px}
+    .loss-sev-btn{width:30px;height:27px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface2);font-size:12px;font-weight:700;cursor:pointer;color:var(--text-sec);font-family:var(--font);transition:all .1s}
+    .loss-sev-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    .loss-card-expand{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent-dark);padding:2px 6px;flex-shrink:0}
+    .loss-card-details{border-top:1px solid var(--border);padding:8px 12px;display:none;flex-direction:column;gap:5px}
+    .loss-card-details.open{display:flex}
+    .loss-detail-row{display:flex;align-items:center;gap:8px}
+    .loss-detail-label{font-size:12px;color:var(--text-sec);flex:1}
+    .loss-detail-btns{display:flex;gap:3px}
+    .loss-detail-btn{width:26px;height:24px;border-radius:5px;border:1.5px solid var(--border);background:var(--surface2);font-size:11px;font-weight:700;cursor:pointer;color:var(--text-sec);font-family:var(--font);transition:all .1s}
+    .loss-detail-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    /* Inherited severity chips in assess sheet */
+    .inherited-sev-chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px;border:1px solid var(--border);color:var(--text-sec);background:var(--surface2)}
+    /* Impact badges for all loss types */
+    .impact-badge-mold{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+    .impact-badge-pb{background:#faf5ff;color:#9333ea;border:1px solid #e9d5ff}
+    .impact-badge-debris{background:#fafafa;color:#78716c;border:1px solid #d6d3d1}
+    .origin-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;letter-spacing:.2px}
+
+    .spacer16{height:16px}
+    .pad16{padding:0 16px}
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div class="notch-pill"></div></div>
+
+  <!-- ORDERS -->
+  <div id="scr-orders" class="screen active">
+    <div class="orders-hero">
+      <div class="orders-logo">
+        <div class="logo-icon">📷</div>
+        <div class="logo-text">Photo<span>Scope</span></div>
+      </div>
+      <div class="orders-tagline">Guided photo walkthrough for damage assessment</div>
+    </div>
+    <div class="scroll">
+      <div class="spacer16"></div>
+      <div class="pad16"><button class="btn btn-amber btn-lg btn-full" id="btn-new-order">New Order →</button></div>
+      <div class="sec-label">Recent Orders</div>
+      <div id="orders-list"></div>
+      <div style="height:24px"></div>
+    </div>
+  </div>
+
+  <!-- WIZARD 1 — Address + Floors -->
+  <div id="scr-wiz1" class="screen">
+    <div class="nav">
+      <button class="nav-back" data-back>←</button>
+      <div class="nav-title" style="font-size:13px;color:var(--text-muted);font-weight:500">New Order</div>
+    </div>
+    <div class="wizard-progress" id="wiz-prog"></div>
+    <div class="wizard-step-label">STEP 1 OF 3</div>
+    <div class="wizard-body">
+      <div class="wizard-title">Project Address</div>
+      <div class="wizard-sub">Where is this job?</div>
+      <label class="input-label">Address</label>
+      <input class="input-field" id="inp-address" placeholder="123 Main Street..." />
+      <label class="input-label">Floors</label>
+      <div class="floor-grid" id="floor-count-btns"></div>
+      <label class="input-label">Special Floors</label>
+      <div class="wiz-special-floors">
+        <button type="button" class="wiz-special-btn" id="wiz-btn-basement">🏗 Basement</button>
+        <button type="button" class="wiz-special-btn" id="wiz-btn-attic">🔺 Attic</button>
+      </div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn btn-amber btn-lg btn-full" id="btn-wiz1-next">Next →</button>
+    </div>
+  </div>
+
+  <!-- WIZARD 2 — Offerings -->
+  <div id="scr-wiz2" class="screen">
+    <div class="nav">
+      <button class="nav-back" data-back>←</button>
+      <div class="nav-title" style="font-size:13px;color:var(--text-muted);font-weight:500">New Order</div>
+    </div>
+    <div class="wizard-progress" id="wiz-prog2"></div>
+    <div class="wizard-step-label">STEP 2 OF 3</div>
+    <div class="wizard-body">
+      <div class="wizard-title">Service Offerings</div>
+      <div class="wizard-sub">What services apply?</div>
+      <div style="width:100%" id="offerings-rows"></div>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn btn-amber btn-lg btn-full" id="btn-wiz2-next">Next →</button>
+    </div>
+  </div>
+
+  <!-- WIZARD 3 — Severity -->
+  <div id="scr-wiz3" class="screen">
+    <div class="nav">
+      <button class="nav-back" data-back>←</button>
+      <div class="nav-title" style="font-size:13px;color:var(--text-muted);font-weight:500">New Order</div>
+    </div>
+    <div class="wizard-progress" id="wiz-prog3"></div>
+    <div class="wizard-step-label">STEP 3 OF 3</div>
+    <div class="scroll">
+      <div style="padding:16px 20px 8px">
+        <div style="font-size:22px;font-weight:800;letter-spacing:-.4px">Loss Assessment</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-top:4px">Select each loss type present and rate 1–3. Tap ▸ for details.</div>
+      </div>
+      <div style="padding:0 16px 4px" id="sev-loss-cards"></div>
+      <div class="wiz-uniform-row">
+        <div class="wiz-uniform-label">Same severity throughout the home?</div>
+        <div class="wiz-uniform-sub">If yes, floors and rooms inherit order-level severity automatically.</div>
+        <div class="wiz-uniform-btns">
+          <button type="button" class="btn btn-lg" id="wiz3-uniform-yes" style="flex:1">Yes</button>
+          <button type="button" class="btn btn-lg" id="wiz3-uniform-no" style="flex:1">No</button>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px 20px;background:var(--bg);border-top:1px solid var(--border)">
+      <button class="btn btn-amber btn-lg btn-full" id="btn-wiz3-done">📷 Start Walkthrough</button>
+    </div>
+  </div>
+
+  <!-- ORDER — collapsible floors + rooms -->
+  <div id="scr-order" class="screen">
+    <div class="nav">
+      <button class="nav-back" data-back>←</button>
+      <div class="nav-title" id="order-nav-title">Order</div>
+      <div id="order-complete-badge" style="display:none;font-size:10px;font-weight:700;padding:3px 8px;background:var(--success-light);color:var(--success);border-radius:10px;border:1px solid #a7f3d0">✓ Complete</div>
+    </div>
+    <div class="scroll">
+      <div style="padding:16px 20px 0">
+        <div style="font-size:20px;font-weight:800;letter-spacing:-.3px" id="order-address-heading"></div>
+        <div style="font-size:13px;color:var(--text-sec);margin-top:3px" id="order-stats"></div>
+      </div>
+      <div style="height:8px"></div>
+      <div id="floors-list"></div>
+    </div>
+    <div style="padding:10px 16px 16px;border-top:1px solid var(--border);flex-shrink:0">
+      <button class="btn btn-amber btn-lg btn-full" id="btn-scope-done">✓ Complete Scope</button>
+    </div>
+  </div>
+
+  <!-- ROOM (photo grid) -->
+  <div id="scr-room" class="screen">
+    <div class="room-header-area">
+      <div class="room-breadcrumb" id="room-breadcrumb"></div>
+      <div class="room-header-row">
+        <div class="room-title" id="room-title" title="Tap to switch room"></div>
+        <button class="room-cam-fab" id="room-cam-fab">📷</button>
+      </div>
+      <div class="room-toolbar">
+        <button class="toolbar-btn" id="btn-search-toggle">🔍 Search</button>
+        <button class="toolbar-btn" id="btn-filter-toggle">⚡ Filter</button>
+        <button class="toolbar-btn" id="btn-select-toggle">☑ Select</button>
+        <button class="toolbar-btn" id="btn-origin-toggle">🎯 Origin</button>
+        <button class="toolbar-btn" id="btn-room-sev">📊 Sev</button>
+      </div>
+    </div>
+    <div class="search-bar" id="search-bar">
+      <input class="search-input" id="search-input" placeholder="Search tags, notes, or content…" autocomplete="off" />
+    </div>
+    <div class="filter-row" id="filter-row" style="display:none"></div>
+    <div class="scroll" id="room-scroll"><div id="room-grid-wrap"></div></div>
+    <div class="bulk-bar" id="bulk-bar">
+      <div class="bulk-top">
+        <span class="bulk-count" id="bulk-count-label">0 selected</span>
+        <button class="bulk-sel-all" id="btn-bulk-sel-all">Select All</button>
+        <button class="bulk-cancel" id="btn-bulk-cancel">Cancel</button>
+      </div>
+      <div class="bulk-actions">
+        <button class="bulk-action-btn" id="bulk-room">🏠 Room</button>
+        <button class="bulk-action-btn" id="bulk-reason">🏷 Reason</button>
+        <button class="bulk-action-btn" id="bulk-note">💬 Note</button>
+        <button class="bulk-action-btn danger" id="bulk-delete">🗑</button>
+      </div>
+    </div>
+    <div class="confirm-overlay" id="confirm-del">
+      <div class="confirm-box">
+        <p id="confirm-del-msg">Delete selected?</p>
+        <div class="confirm-actions">
+          <button class="btn btn-md btn-white" id="confirm-del-cancel">Cancel</button>
+          <button class="btn btn-md btn-danger" id="confirm-del-ok">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA — full-screen, floating shutter -->
+  <div id="scr-camera" class="screen cam-screen">
+    <div class="cam-wrap">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <div id="cam-fallback" class="cam-fallback">
+        <div style="font-size:40px">📷</div>
+        <div>Allow camera access to see live preview</div>
+      </div>
+      <div class="cam-hud">
+        <button class="cam-close" id="cam-close">✕</button>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="cam-badge" id="cam-badge"></div>
+          <button id="cam-floor-plan" style="background:rgba(0,0,0,.55);border:none;color:#fff;padding:5px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer">Floor Plan ›</button>
+        </div>
+      </div>
+      <!-- Floating shutter button over the preview -->
+      <div class="cap-float">
+        <div class="cap-ring">
+          <button class="cap-btn" id="btn-capture" disabled></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHOTO REVIEW -->
+  <div id="scr-review" class="screen review-screen">
+    <div class="review-photo-area">
+      <img id="rev-img" alt="" />
+      <div class="review-hud">
+        <button class="review-close" id="rev-close">✕</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="cam-close" id="rev-retake" title="Retake photo">↺</button>
+          <button class="review-cover-btn" id="rev-cover-btn" title="Set as cover photo">☆</button>
+        </div>
+      </div>
+      <div class="review-tags-overlay">
+        <div class="review-room-label" id="rev-room-label"></div>
+        <div class="tag-pills" id="rev-tag-pills"></div>
+      </div>
+    </div>
+    <div class="review-panel">
+      <div class="review-panel-scroll">
+        <div class="speak-bar" id="speak-bar">
+          <div class="speak-dot"></div>
+          <span class="speak-text" id="speak-text">Say a number, then "go"</span>
+          <button class="speak-stop" id="speak-stop">Stop</button>
+        </div>
+        <div id="reason-panel">
+          <div class="reason-grid" id="primary-grid"></div>
+          <div id="sub-panel" style="display:none;margin-top:10px">
+            <div class="sub-section-label" id="sub-section-label"></div>
+            <div class="reason-grid" id="sub-grid"></div>
+          </div>
+        </div>
+        <div class="note-wrap">
+          <div class="note-label">Note (optional)</div>
+          <div style="display:flex;gap:7px;align-items:flex-start">
+            <textarea class="note-input" id="review-note" rows="2" placeholder="Quick note..." style="flex:1;min-width:0"></textarea>
+            <button id="btn-note-mic" title="Dictate note" style="flex-shrink:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xs);padding:8px 10px;font-size:17px;cursor:pointer;line-height:1;align-self:stretch">🎙</button>
+          </div>
+        </div>
+      </div>
+      <div class="review-panel-footer" id="review-panel-footer">
+        <button class="btn btn-white btn-lg" id="btn-take-another">+ Another</button>
+        <button class="btn btn-amber btn-lg" id="btn-save">✓ Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Add Room -->
+  <div class="sheet-overlay" id="sheet-add-room">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="add-room-mode-row">
+        <div class="sheet-title" style="margin-bottom:0;flex:1">Add Room</div>
+        <button class="add-room-mode-toggle" id="add-room-multi-toggle">☐ Multiple</button>
+      </div>
+      <div class="room-preset-grid" id="room-presets"></div>
+      <div id="add-room-multi-bar" style="display:none;margin-bottom:10px">
+        <button class="btn btn-amber btn-md btn-full" id="do-add-rooms-bulk">Add Selected Rooms →</button>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:7px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px">Or custom name</div>
+      <div style="display:flex;gap:8px">
+        <input class="sheet-input" id="inp-room-name" placeholder="Custom name..." style="flex:1;margin:0" />
+        <button class="btn btn-amber btn-md" id="do-add-room-custom">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Switch Room (all floors) -->
+  <div class="sheet-overlay" id="sheet-switch-room">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Switch Room</div>
+      <div id="switch-room-list"></div>
+      <div style="margin-top:14px">
+        <button class="btn btn-white btn-md btn-full" id="btn-switch-add-room">+ Add New Room</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Bulk reason -->
+  <div class="sheet-overlay" id="sheet-bulk-reason">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Change Reason</div>
+      <div class="reason-grid" id="bulk-reason-grid"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-white btn-md" id="bulk-reason-cancel">Cancel</button>
+        <button class="btn btn-amber btn-md" id="bulk-reason-apply">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Bulk note -->
+  <div class="sheet-overlay" id="sheet-bulk-note">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Add / Edit Note</div>
+      <textarea class="sheet-input" id="inp-bulk-note" rows="3" placeholder="Note for selected photos..."></textarea>
+      <div class="sheet-actions">
+        <button class="btn btn-white btn-md" id="bulk-note-cancel">Cancel</button>
+        <button class="btn btn-amber btn-md" id="bulk-note-apply">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Room Impact Check -->
+  <div class="sheet-overlay" id="sheet-room-assess">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div style="display:flex;align-items:center;margin-bottom:4px">
+        <div class="sheet-title" style="margin-bottom:0;flex:1">Room Impact Check</div>
+        <button id="assess-skip" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text-muted);padding:4px 8px">Skip</button>
+      </div>
+      <div id="assess-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Override for this room — set 0 to clear a type.</div>
+      <div id="assess-loss-cards"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-white btn-md" id="assess-not-affected" style="flex:1">✓ Room Clear</button>
+        <button class="btn btn-amber btn-md" id="assess-confirm" style="flex:1">Save →</button>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button id="assess-reset" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text-muted);text-decoration:underline;text-underline-offset:2px">Reset to floor/order default</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Floor Severity Override -->
+  <div class="sheet-overlay" id="sheet-floor-sev">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Floor Severity Override</div>
+      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Set to 0 to inherit from order. Set 1–3 to override for this floor.</div>
+      <div id="floor-sev-cards"></div>
+      <div class="floor-sev-uniform-row">
+        <div class="sub-section-label" style="margin-bottom:7px">Same severity for all rooms on this floor?</div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-sm" id="floor-sev-uniform-yes" style="flex:1">Yes</button>
+          <button type="button" class="btn btn-sm" id="floor-sev-uniform-no" style="flex:1">No</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-white btn-md" id="floor-sev-cancel" style="flex:1">Cancel</button>
+        <button class="btn btn-amber btn-md" id="floor-sev-save" style="flex:1">Save →</button>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button id="floor-sev-reset" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:12px;color:var(--text-muted);text-decoration:underline;text-underline-offset:2px">Reset to order default</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Bulk move room (all floors) -->
+  <div class="sheet-overlay" id="sheet-bulk-room">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Move to Room</div>
+      <div id="bulk-room-list"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-white btn-md btn-full" id="bulk-room-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Floor affected check -->
+  <div class="sheet-overlay" id="sheet-floor-check">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="floor-check-title">Is this floor affected?</div>
+      <div id="floor-check-inherited" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Order-level severity shown above. Is this floor impacted by the loss?</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-white btn-lg" id="floor-check-no" style="flex:1">✓ Not Affected</button>
+        <button class="btn btn-amber btn-lg" id="floor-check-yes" style="flex:1">Affected →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Add Floor picker -->
+  <div class="sheet-overlay" id="sheet-add-floor">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Add Floor</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-basement">🏗 Basement</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-standard">📐 Numbered Floor</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-attic">🔺 Attic</button>
+      </div>
+      <div style="margin-top:10px;text-align:center">
+        <button id="add-floor-cancel" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--text-muted)">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Scope Review -->
+  <div class="sheet-overlay" id="sheet-scope-review">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Scope Review</div>
+      <div id="scope-summary"></div>
+      <div id="scope-issues"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-white btn-md" id="scope-keep-editing" style="flex:1">← Keep Editing</button>
+        <button class="btn btn-amber btn-md" id="scope-confirm" style="flex:1">✓ Confirm</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /phone -->
+
+<script>
+(function(){
+// Alpha-sorted primary reasons
+const PRIMARY_REASONS=[
+  {code:'BEF', label:'Before'},
+  {code:'PU',  label:'Pick Up'},
+  {code:'CC',  label:'Customer Cleaning'},
+  {code:'IH',  label:'In Home'},
+  {code:'NA',  label:'Not Affected'},
+  {code:'SVC', label:'Services'},
+  {code:'TLI', label:'Total Loss'},
+];
+// Secondary reasons — rendered in same grid, no visual separator
+const MORE_REASONS=[
+  {code:'COE',label:'Cash Out Estimate'},
+  {code:'CTW',label:'Customer Throwing Out'},
+  {code:'DNT',label:'Do Not Touch'},
+  {code:'NWC',label:'Not Worth Cleaning'},
+  {code:'SO', label:'Storage Only'},
+  {code:'UND',label:'Undecided'},
+];
+const SUB_MAP={
+  'BEF':['Sun Damage','Existing Conditions','Pet Stains','Worn','Clutter'],
+  'PU': ['All','Window Treats','Rugs','Bedding','Exposed','Clothes','Closets','Drawers'],
+  'IH': ['Upholstery','Drapes','Rugs','Electronics'],
+  'SVC':['Unpacking','Stain Removal','Fold AMAP','Photo Inventory','Re-hanging','Scaffolding','Dispose','PPE','Content Manip','Moving'],
+  'TLI':['We are writing'],
+  'NA':[],'CC':[],
+  'CTW':['Dispose','Donate'],
+  'COE':[],'DNT':[],'NWC':[],'SO':[],'UND':[],
+};
+const LOSS_TYPES=[
+  {code:'fire',  label:'Fire',     icon:'🔥', details:['Heat','Soot','Odor','Ext. Power','Rem. Debris','FF Damage']},
+  {code:'water', label:'Water',    icon:'💧', details:['Water','Humidity','Musty Odor','Mold Growth','Sprinkler']},
+  {code:'mold',  label:'Mold',     icon:'🟢', details:['Active','Dormant','Odor']},
+  {code:'pb',    label:'Puffback', icon:'💨', details:['Soot','Odor','Residue']},
+  {code:'debris',label:'Debris',   icon:'🪨', details:['Structural','Contents','Other']},
+];
+function emptySev(){const s={};LOSS_TYPES.forEach(lt=>{s[lt.code]={sev:0,details:{}};});return s;}
+function mergeSev(base,ov){if(!ov)return base;Object.keys(ov).forEach(k=>{if(!base[k])base[k]={sev:0,details:{}};if(ov[k].sev!==undefined)base[k].sev=ov[k].sev;if(ov[k].details)Object.assign(base[k].details,ov[k].details);});return base;}
+function effectiveSev(room,fi){const b=JSON.parse(JSON.stringify(curOrder.severity||emptySev()));const fl=curOrder.floors[fi!==undefined?fi:curFloorIdx];if(fl&&fl.severity)mergeSev(b,fl.severity);if(room&&room.severity)mergeSev(b,room.severity);return b;}
+function sevSummary(sevObj){const parts=LOSS_TYPES.filter(lt=>sevObj[lt.code]&&sevObj[lt.code].sev>0).map(lt=>lt.icon+sevObj[lt.code].sev);return parts.length?parts.join(' '):null;}
+const OFFERINGS=['Textiles','Art','Appliance'];
+const ROOM_PRESETS=['Kitchen','Bath','Bedroom','Living','Dining','Master','Office','Garage','Laundry','Hallway','Closet','Attic','Basement','Pantry','Foyer','Den','Studio','Gym'];
+
+let orders=[],curOrder=null,curFloorIdx=0,curRoom=null;
+let capturedUrl='',selPrimary=null,selSubs=new Set();
+let camStream=null,bulkMode=false,bulkSel=new Set(),filterSel=new Set();
+let recognition=null,speakActive=false;
+let bulkReasonPick=null,editingPhoto=null,lastTags={};
+let nextOrderId=1,nextPhotoId=1,wizFloorCount=1,wizHasBasement=false,wizHasAttic=false;
+let editFloorUniform=false;  // "same for all rooms?" toggle in floor-sev sheet
+let floorSevOpenRoom=false;  // open Add Room sheet after saving floor severity (floor-check flow)
+let checkFloorIdx=null;      // floor being evaluated in floor-check flow
+let searchQuery='';
+const collapsedFloors=new Set();
+let assessRoomSev={};           // working severity in room assess sheet
+let addRoomMultiMode=false;
+const addRoomMultiSel=new Set();
+let revIsCover=false;           // cover flag for current review
+let editFloorIdx=null;          // floor index being edited in floor-sev sheet
+let editFloorSev={};            // working severity in floor-sev sheet
+const expandedLossCards=new Set(); // expanded loss cards in wiz/assess/floor sheets
+
+/* ── Helpers ── */
+function $(id){return document.getElementById(id)}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function openSheet(id){$(id).classList.add('open')}
+function closeSheet(id){$(id).classList.remove('open')}
+function showToast(msg,dur=2200){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.querySelector('.phone').appendChild(t);
+  setTimeout(()=>t.remove(),dur);
+}
+function findReason(code){return PRIMARY_REASONS.find(r=>r.code===code)||MORE_REASONS.find(r=>r.code===code)||null;}
+function progressBars(cid,step,total){
+  const el=$(cid);el.innerHTML='';
+  for(let i=1;i<=total;i++){const b=document.createElement('div');b.className='wizard-step-bar'+(i<step?' done':i===step?' active':'');el.appendChild(b);}
+}
+function shortAddr(addr,max=26){return addr&&addr.length>max?addr.slice(0,max-1)+'…':addr}
+
+/* ── Navigation ── */
+const stack=['scr-orders'];
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  if(stack[stack.length-1]!==id)stack.push(id);
+  onEnter(id);
+}
+function goBack(){
+  if(stack.length<=1)return;
+  if($('scr-camera').classList.contains('active'))stopCam();
+  stack.pop();
+  const prev=stack[stack.length-1];
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===prev));
+  onEnter(prev);
+}
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',goBack));
+function onEnter(id){
+  if(id==='scr-orders')renderOrders();
+  if(id==='scr-wiz1')initWiz1();
+  if(id==='scr-wiz2')initWiz2();
+  if(id==='scr-wiz3')initWiz3();
+  if(id==='scr-order')renderOrder();
+  if(id==='scr-room')renderRoom();
+  if(id==='scr-camera')startCam();
+  if(id==='scr-review'){editingPhoto?initEditReview():initReview();}
+}
+
+/* ── Orders ── */
+function renderOrders(){
+  const el=$('orders-list');el.innerHTML='';
+  if(!orders.length){el.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:24px 20px;font-size:14px">No orders yet. Create one to start.</div>';return;}
+  orders.slice().reverse().forEach(o=>{
+    const tp=o.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
+    const completeBadge=o.scopeComplete?'<span style="font-size:10px;font-weight:700;padding:2px 7px;background:var(--success-light);color:var(--success);border-radius:10px;border:1px solid #a7f3d0;margin-left:6px">✓ Complete</span>':'';
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`<div class="card-row"><div class="card-icon">🏠</div><div class="card-body"><div class="card-title" style="display:flex;align-items:center">${esc(o.address||'Order #'+o.id)}${completeBadge}</div><div class="card-sub">${o.floors.length} floor(s) · ${tp} photo(s) · ${esc(o.date)}</div></div><div class="chevron">›</div></div>`;
+    c.addEventListener('click',()=>{curOrder=o;go('scr-order');});
+    el.appendChild(c);
+  });
+}
+$('btn-new-order').addEventListener('click',()=>go('scr-wiz1'));
+
+/* ── Wizard ── */
+function initWiz1(){
+  progressBars('wiz-prog',1,3);
+  const fc=$('floor-count-btns');fc.innerHTML='';
+  for(let n=1;n<=4;n++){
+    const b=document.createElement('button');b.type='button';b.className='floor-btn'+(wizFloorCount===n?' active':'');b.textContent=n;
+    b.addEventListener('click',()=>{wizFloorCount=n;initWiz1();});fc.appendChild(b);
+  }
+  $('wiz-btn-basement').classList.toggle('active',wizHasBasement);
+  $('wiz-btn-attic').classList.toggle('active',wizHasAttic);
+}
+$('wiz-btn-basement').addEventListener('click',()=>{wizHasBasement=!wizHasBasement;initWiz1();});
+$('wiz-btn-attic').addEventListener('click',()=>{wizHasAttic=!wizHasAttic;initWiz1();});
+$('btn-wiz1-next').addEventListener('click',()=>{
+  window._wizAddr=$('inp-address').value.trim()||'New Order';
+  window._wizFloors=wizFloorCount;
+  window._wizBasement=wizHasBasement;
+  window._wizAttic=wizHasAttic;
+  go('scr-wiz2');
+});
+function initWiz2(){
+  progressBars('wiz-prog2',2,3);
+  const el=$('offerings-rows');el.innerHTML='';
+  window._wizOfferings=window._wizOfferings||[];
+  OFFERINGS.forEach((o,i)=>{
+    const sel=window._wizOfferings.includes(o);
+    const row=document.createElement('div');row.className='offering-row'+(sel?' selected':'');
+    row.innerHTML=`<span class="offering-num">${i+1}</span><span class="offering-label">${esc(o)}</span>${sel?'<span class="offering-check">✓</span>':''}`;
+    row.addEventListener('click',()=>{const a=window._wizOfferings;const j=a.indexOf(o);if(j>=0)a.splice(j,1);else a.push(o);initWiz2();});
+    el.appendChild(row);
+  });
+}
+$('btn-wiz2-next').addEventListener('click',()=>go('scr-wiz3'));
+function initWiz3(){
+  progressBars('wiz-prog3',3,3);
+  if(!window._wizSev)window._wizSev=emptySev();
+  if(window._wizUniform===undefined)window._wizUniform=true;
+  renderLossCards('sev-loss-cards',window._wizSev,'wiz');
+  syncWiz3Uniform();
+}
+function syncWiz3Uniform(){
+  const isYes=window._wizUniform!==false;
+  $('wiz3-uniform-yes').className='btn btn-lg'+(isYes?' btn-amber':' btn-white');
+  $('wiz3-uniform-no').className='btn btn-lg'+(!isYes?' btn-amber':' btn-white');
+}
+$('wiz3-uniform-yes').addEventListener('click',()=>{window._wizUniform=true;syncWiz3Uniform();});
+$('wiz3-uniform-no').addEventListener('click',()=>{window._wizUniform=false;syncWiz3Uniform();});
+/* Render expandable loss-type cards into containerId.
+   sevObj: {fire:{sev,details},water:{sev,details},...}
+   prefix: unique string to namespace expand state */
+function renderLossCards(containerId,sevObj,prefix){
+  const el=$(containerId);if(!el)return;el.innerHTML='';
+  LOSS_TYPES.forEach(lt=>{
+    const entry=sevObj[lt.code]||(sevObj[lt.code]={sev:0,details:{}});
+    const expandKey=prefix+'-'+lt.code;
+    const isExp=expandedLossCards.has(expandKey);
+    const card=document.createElement('div');
+    card.className='loss-card'+(entry.sev>0?' active':'');
+
+    // Header row
+    const hdr=document.createElement('div');hdr.className='loss-card-hdr';
+    const expandBtn=document.createElement('button');
+    expandBtn.type='button';expandBtn.className='loss-card-expand';
+    expandBtn.textContent=isExp?'▾ Hide':'▸ Details';
+    expandBtn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      if(expandedLossCards.has(expandKey))expandedLossCards.delete(expandKey);
+      else expandedLossCards.add(expandKey);
+      renderLossCards(containerId,sevObj,prefix);
+    });
+
+    let sevBtnsHtml='';
+    for(let v=0;v<=3;v++){
+      const active=entry.sev===v?' active':'';
+      sevBtnsHtml+=`<button type="button" class="loss-sev-btn${active}" data-code="${lt.code}" data-v="${v}" data-cid="${containerId}" data-prefix="${prefix}">${v}</button>`;
+    }
+    hdr.innerHTML=`<span class="loss-card-icon">${lt.icon}</span><span class="loss-card-label">${esc(lt.label)}</span><div class="loss-card-sev-btns">${sevBtnsHtml}</div>`;
+    hdr.appendChild(expandBtn);
+    card.appendChild(hdr);
+
+    // Details rows
+    const details=document.createElement('div');
+    details.className='loss-card-details'+(isExp?' open':'');
+    lt.details.forEach(d=>{
+      const dv=entry.details[d]||0;
+      const row=document.createElement('div');row.className='loss-detail-row';
+      let dbHtml='';
+      for(let v=0;v<=3;v++)dbHtml+=`<button type="button" class="loss-detail-btn${dv===v?' active':''}" data-code="${lt.code}" data-detail="${esc(d)}" data-v="${v}" data-cid="${containerId}" data-prefix="${prefix}">${v}</button>`;
+      row.innerHTML=`<span class="loss-detail-label">${esc(d)}</span><div class="loss-detail-btns">${dbHtml}</div>`;
+      details.appendChild(row);
+    });
+    card.appendChild(details);
+    el.appendChild(card);
+  });
+
+  // Attach sev button events
+  el.querySelectorAll('.loss-sev-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const code=b.dataset.code,v=parseInt(b.dataset.v);
+      if(!sevObj[code])sevObj[code]={sev:0,details:{}};
+      sevObj[code].sev=v;
+      renderLossCards(containerId,sevObj,prefix);
+    });
+  });
+  el.querySelectorAll('.loss-detail-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const code=b.dataset.code,d=b.dataset.detail,v=parseInt(b.dataset.v);
+      if(!sevObj[code])sevObj[code]={sev:0,details:{}};
+      sevObj[code].details[d]=v;
+      renderLossCards(containerId,sevObj,prefix);
+    });
+  });
+}
+$('btn-wiz3-done').addEventListener('click',()=>{
+  const numF=window._wizFloors||1;
+  const floors=[];
+  if(window._wizBasement)floors.push({name:'Basement',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
+  for(let i=1;i<=numF;i++)floors.push({name:'Floor '+i,rooms:[],severity:null,notAffected:false,uniformSeverity:false});
+  if(window._wizAttic)floors.push({name:'Attic',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
+  const o={id:nextOrderId++,address:window._wizAddr||'New Order',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors};
+  orders.push(o);curOrder=o;
+  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;
+  wizFloorCount=1;wizHasBasement=false;wizHasAttic=false;
+  expandedLossCards.clear();
+  collapsedFloors.clear();
+  go('scr-order');
+});
+
+/* ── Order screen — collapsible floors + rooms ── */
+function renderOrder(){
+  $('order-nav-title').textContent='Order #'+curOrder.id;
+  $('order-address-heading').textContent=curOrder.address;
+  const tp=curOrder.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
+  const tr=curOrder.floors.reduce((a,f)=>a+f.rooms.length,0);
+  $('order-stats').textContent=tp+' photo(s) · '+tr+' room(s) · '+curOrder.floors.length+' floor(s)';
+
+  const el=$('floors-list');el.innerHTML='';
+
+  function floorSortKey(f){
+    if(f.name==='Attic')return 9999;
+    if(f.name==='Basement')return -1;
+    const m=f.name.match(/Floor (\d+)/);
+    return m?parseInt(m[1]):0;
+  }
+  const sortedFloors=curOrder.floors
+    .map((f,fi)=>({f,fi}))
+    .sort((a,b)=>floorSortKey(b.f)-floorSortKey(a.f));
+
+  sortedFloors.forEach(({f,fi})=>{
+    const pc=f.rooms.reduce((a,r)=>a+r.photos.length,0);
+    const rc_count=f.rooms.length;
+    const isCollapsed=collapsedFloors.has(fi);
+
+    const sec=document.createElement('div');
+    sec.className='floor-section'+(isCollapsed?' collapsed':'');
+    if(f.notAffected)sec.classList.add('floor-not-affected');
+
+    // Floor display name: numbered floors become "1. Floor", special floors keep their name
+    let floorDisplayName=f.name;
+    const numMatch=f.name.match(/^Floor (\d+)$/);
+    if(numMatch)floorDisplayName=numMatch[1]+'. Floor';
+
+    // Floor header
+    const hdr=document.createElement('div');
+    hdr.className='floor-section-header';
+
+    const addBtn=document.createElement('button');
+    addBtn.type='button';addBtn.className='floor-section-add';addBtn.textContent='+ Room';
+    addBtn.addEventListener('click',(e)=>{e.stopPropagation();curFloorIdx=fi;openAddRoomSheet();});
+
+    const arrowEl=document.createElement('span');
+    arrowEl.className='floor-section-arrow';arrowEl.textContent='⌄';
+
+    // Counts label — show room+photo count when collapsed, room count when expanded
+    const countsEl=document.createElement('span');
+    countsEl.className='floor-section-counts';
+    if(isCollapsed){
+      countsEl.textContent=rc_count+' room'+(rc_count===1?'':'s')+(pc>0?' · '+pc+' 📷':'');
+    } else {
+      countsEl.textContent=rc_count+' room'+(rc_count===1?'':'s');
+    }
+
+    // Not-affected label (replaces severity badge)
+    const notAffLabel=f.notAffected?'<span class="floor-clear-badge" style="font-size:11px;margin-right:4px">None</span>':'';
+
+    hdr.innerHTML=`<div class="floor-section-body"><div class="floor-section-name">${esc(floorDisplayName)}${notAffLabel}</div></div>`;
+    hdr.appendChild(countsEl);
+    hdr.appendChild(addBtn);
+    hdr.appendChild(arrowEl);
+
+    hdr.addEventListener('click',(e)=>{
+      if(e.target===addBtn||addBtn.contains(e.target))return;
+      if(f.rooms.length===0){
+        curFloorIdx=fi;
+        openFloorEntry(fi);
+        return;
+      }
+      if(collapsedFloors.has(fi))collapsedFloors.delete(fi);else collapsedFloors.add(fi);
+      renderOrder();
+    });
+
+    sec.appendChild(hdr);
+
+    // Rooms list
+    const roomsWrap=document.createElement('div');
+    roomsWrap.className='floor-section-rooms';
+
+    if(!f.rooms.length){
+      const emp=document.createElement('div');emp.className='floor-room-empty';emp.textContent='No rooms yet — tap + Room to add one';
+      roomsWrap.appendChild(emp);
+    } else {
+      f.rooms.forEach(r=>{
+        const cover=r.photos.find(p=>p.isCover)||r.photos[0];
+        const hasPU=r.photos.some(p=>p.primary==='PU');
+        const hasTLI=r.photos.some(p=>p.primary==='TLI');
+        const hasIH=r.photos.some(p=>p.primary==='IH');
+        let badgeHtml='';
+        if(hasPU)badgeHtml+='<span class="badge badge-pu">PU</span>';
+        if(hasTLI)badgeHtml+='<span class="badge badge-tli">TLI</span>';
+        if(hasIH)badgeHtml+='<span class="badge badge-ih">IH</span>';
+        if(r.isOrigin)badgeHtml+='<span class="origin-badge">🎯 Origin</span>';
+
+        const card=document.createElement('div');card.className='floor-room-card';
+        const thumbHtml=cover
+          ?`<div class="floor-room-thumb"><img src="${cover.dataUrl}" /></div>`
+          :`<div class="floor-room-thumb">📷</div>`;
+        card.innerHTML=`${thumbHtml}<div class="floor-room-body"><div class="floor-room-name">${esc(r.displayName)}</div><div class="floor-room-meta">${badgeHtml}</div></div><div class="floor-room-count">${r.photos.length} 📷</div><div class="chevron" style="color:var(--text-muted);margin-left:6px">›</div>`;
+        card.addEventListener('click',()=>{curFloorIdx=fi;curRoom=r;go('scr-room');});
+        roomsWrap.appendChild(card);
+      });
+    }
+
+    sec.appendChild(roomsWrap);
+    el.appendChild(sec);
+  });
+
+  // Add Floor button — opens picker sheet
+  const addFloorRow=document.createElement('div');addFloorRow.className='add-floor-row';
+  const addFloorBtn=document.createElement('button');addFloorBtn.type='button';addFloorBtn.className='add-floor-btn';
+  addFloorBtn.textContent='+ Add Floor';
+  addFloorBtn.addEventListener('click',()=>openSheet('sheet-add-floor'));
+  addFloorRow.appendChild(addFloorBtn);
+  el.appendChild(addFloorRow);
+
+  // Sync complete badge
+  $('order-complete-badge').style.display=curOrder.scopeComplete?'':'none';
+}
+
+/* ── Floor entry / check flow ── */
+function openFloorEntry(fi){
+  // If order is uniform OR floor already evaluated, skip directly to Add Room
+  const f=curOrder.floors[fi];
+  if(curOrder.uniformSeverity || f.notAffected || f.severity){
+    openAddRoomSheet();
+    return;
+  }
+  // Show the floor check sheet
+  checkFloorIdx=fi;
+  $('floor-check-title').textContent='Is '+f.name+' affected?';
+  // Show order-level severity as context chips
+  const inherited=curOrder.severity||emptySev();
+  const row=$('floor-check-inherited');row.innerHTML='';
+  let any=false;
+  LOSS_TYPES.forEach(lt=>{
+    const s=inherited[lt.code];
+    if(s&&s.sev>0){any=true;
+      const chip=document.createElement('span');chip.className='inherited-sev-chip';
+      chip.textContent=lt.icon+' '+lt.label+' ('+s.sev+')';row.appendChild(chip);
+    }
+  });
+  if(!any){const chip=document.createElement('span');chip.className='inherited-sev-chip';chip.textContent='No order-level severity';row.appendChild(chip);}
+  openSheet('sheet-floor-check');
+}
+$('floor-check-no').addEventListener('click',()=>{
+  if(checkFloorIdx===null)return;
+  curOrder.floors[checkFloorIdx].notAffected=true;
+  checkFloorIdx=null;
+  closeSheet('sheet-floor-check');
+  showToast('Floor marked as not affected');
+  renderOrder();
+});
+$('floor-check-yes').addEventListener('click',()=>{
+  if(checkFloorIdx===null)return;
+  // Open floor sev sheet pre-filled with order severity; after save → open Add Room
+  floorSevOpenRoom=true;
+  editFloorIdx=checkFloorIdx;
+  checkFloorIdx=null;
+  closeSheet('sheet-floor-check');
+  openFloorSevSheet();
+});
+
+/* ── Add Floor picker handlers ── */
+function addFloorByName(name){
+  const existing=curOrder.floors.map(f=>f.name);
+  let finalName=name;
+  if(name==='Numbered Floor'){
+    // auto-number: count how many "Floor N" exist
+    const numbered=curOrder.floors.filter(f=>/^Floor \d+$/.test(f.name)).length;
+    finalName='Floor '+(numbered+1);
+  }
+  // Avoid duplicate named floors
+  if(name==='Basement'||name==='Attic'){
+    if(existing.includes(name)){showToast(name+' already exists');closeSheet('sheet-add-floor');return;}
+  }
+  curOrder.floors.push({name:finalName,rooms:[],severity:null,notAffected:false,uniformSeverity:false});
+  curFloorIdx=curOrder.floors.length-1;
+  closeSheet('sheet-add-floor');
+  renderOrder();
+  // Start the floor entry flow (check or direct)
+  openFloorEntry(curFloorIdx);
+}
+$('add-floor-basement').addEventListener('click',()=>addFloorByName('Basement'));
+$('add-floor-standard').addEventListener('click',()=>addFloorByName('Numbered Floor'));
+$('add-floor-attic').addEventListener('click',()=>addFloorByName('Attic'));
+$('add-floor-cancel').addEventListener('click',()=>closeSheet('sheet-add-floor'));
+
+/* ── Add Room ── */
+function curFloor(){return curOrder.floors[curFloorIdx]}
+function openAddRoomSheet(){
+  $('inp-room-name').value='';
+  addRoomMultiMode=false;addRoomMultiSel.clear();
+  $('add-room-multi-toggle').classList.remove('on');
+  $('add-room-multi-toggle').textContent='☐ Multiple';
+  $('add-room-multi-bar').style.display='none';
+  buildRoomPresets();
+  openSheet('sheet-add-room');
+}
+function buildRoomPresets(){
+  const el=$('room-presets');el.innerHTML='';
+  ROOM_PRESETS.forEach(name=>{
+    const b=document.createElement('button');b.type='button';
+    b.className='room-preset'+(addRoomMultiSel.has(name)?' on':'');
+    b.textContent=name;
+    b.addEventListener('click',()=>{
+      if(addRoomMultiMode){
+        if(addRoomMultiSel.has(name))addRoomMultiSel.delete(name);
+        else addRoomMultiSel.add(name);
+        buildRoomPresets();
+        const n=addRoomMultiSel.size;
+        $('do-add-rooms-bulk').textContent=`Add ${n} Room${n===1?'':'s'} →`;
+        $('add-room-multi-bar').style.display=n>0?'block':'none';
+      } else {
+        closeSheet('sheet-add-room');
+        createRoom(name);
+      }
+    });
+    el.appendChild(b);
+  });
+}
+$('add-room-multi-toggle').addEventListener('click',()=>{
+  addRoomMultiMode=!addRoomMultiMode;addRoomMultiSel.clear();
+  $('add-room-multi-toggle').classList.toggle('on',addRoomMultiMode);
+  $('add-room-multi-toggle').textContent=addRoomMultiMode?'☑ Multiple':'☐ Multiple';
+  $('add-room-multi-bar').style.display='none';
+  buildRoomPresets();
+});
+$('do-add-rooms-bulk').addEventListener('click',()=>{
+  const names=[...addRoomMultiSel];
+  if(!names.length)return;
+  names.forEach(n=>{
+    const f=curFloor();const dn=floorPrefix(f)+'. '+n;
+    f.rooms.push({name:n,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:false});
+  });
+  addRoomMultiSel.clear();addRoomMultiMode=false;
+  closeSheet('sheet-add-room');
+  renderOrder();
+  showToast(`Added ${names.length} room${names.length===1?'':'s'} to ${curFloor().name}`);
+});
+buildRoomPresets();
+$('do-add-room-custom').addEventListener('click',()=>{
+  const name=$('inp-room-name').value.trim()||'Room';
+  closeSheet('sheet-add-room');
+  createRoom(name);
+});
+function floorPrefix(f){
+  if(f.name==='Basement')return 'B';
+  if(f.name==='Attic')return 'A';
+  const m=f.name.match(/Floor (\d+)/);
+  return m?m[1]:f.name;
+}
+function createRoom(name){
+  const f=curFloor();
+  const dn=floorPrefix(f)+'. '+name;
+  const room={name,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:false};
+  f.rooms.push(room);
+  curRoom=room;
+  if(stack[stack.length-1]!=='scr-room')stack.push('scr-room');
+  go('scr-room');  // renderRoom() runs → assess sheet fires on first entry
+}
+function createRooms(names){
+  names.forEach(n=>{
+    const f=curFloor();
+    const dn=floorPrefix(f)+'. '+n;
+    const room={name:n,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:false};
+    f.rooms.push(room);
+  });
+  // After bulk create, go to order screen to see all rooms
+  closeSheet('sheet-add-room');
+  renderOrder();
+}
+
+/* ── Room grid ── */
+function renderRoom(){
+  $('room-title').textContent=curRoom.displayName;
+  $('room-breadcrumb').textContent='← Floor Plan';
+  $('cam-badge').textContent=curRoom.displayName;
+  bulkMode=false;bulkSel.clear();filterSel.clear();searchQuery='';
+  $('btn-select-toggle').classList.remove('active');
+  $('btn-filter-toggle').classList.remove('active');
+  $('btn-search-toggle').classList.remove('active');
+  $('btn-origin-toggle').classList.toggle('active',!!curRoom.isOrigin);
+  $('btn-room-sev').classList.toggle('active',!!(curRoom.severity&&Object.values(curRoom.severity).some(v=>v&&v.sev>0)));
+  $('filter-row').style.display='none';
+  $('search-bar').classList.remove('visible');
+  $('search-input').value='';
+  $('bulk-bar').classList.remove('visible');
+  renderGrid();
+  // Auto-open room assess unless severity is inherited uniformly or floor is clear
+  if(curRoom.assessed===false){
+    const fl=curFloor();
+    const skipAssess=curOrder.uniformSeverity||fl.notAffected||fl.uniformSeverity;
+    if(skipAssess){curRoom.assessed=true;}  // auto-mark assessed, no prompt needed
+    else{openAssessSheet();}
+  }
+}
+
+// Breadcrumb → back to order
+$('room-breadcrumb').addEventListener('click',()=>goBack());
+// Room title → switch room
+$('room-title').addEventListener('click',()=>openSwitchRoomSheet());
+
+/* Switch Room sheet — shows ALL floors and their rooms */
+function openSwitchRoomSheet(){
+  const el=$('switch-room-list');el.innerHTML='';
+  curOrder.floors.forEach((f,fi)=>{
+    if(!f.rooms.length)return;
+    const floorLbl=document.createElement('div');floorLbl.className='switch-floor-label';floorLbl.textContent=f.name;
+    el.appendChild(floorLbl);
+    f.rooms.forEach(r=>{
+      const isActive=r===curRoom;
+      const cover=r.photos.find(p=>p.isCover)||r.photos[0];
+      const item=document.createElement('div');item.className='room-switch-item';
+      const thumbHtml=cover
+        ?`<div style="width:32px;height:32px;border-radius:8px;overflow:hidden;flex-shrink:0"><img src="${cover.dataUrl}" style="width:100%;height:100%;object-fit:cover"/></div>`
+        :`<div style="width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📸</div>`;
+      item.innerHTML=`${thumbHtml}<div style="flex:1"><div class="card-title${isActive?' room-switch-active':''}" style="font-size:14px">${esc(r.displayName)}${isActive?' ✓':''}</div><div class="card-sub" style="font-size:12px">${r.photos.length} photo(s)</div></div>`;
+      item.addEventListener('click',()=>{
+        if(!isActive){curFloorIdx=fi;curRoom=r;closeSheet('sheet-switch-room');renderRoom();}
+        else closeSheet('sheet-switch-room');
+      });
+      el.appendChild(item);
+    });
+  });
+  if(!el.children.length){
+    el.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:16px;font-size:14px">No rooms yet.</div>';
+  }
+  openSheet('sheet-switch-room');
+}
+$('btn-switch-add-room').addEventListener('click',()=>{closeSheet('sheet-switch-room');openAddRoomSheet();});
+
+$('room-cam-fab').addEventListener('click',()=>go('scr-camera'));
+$('btn-filter-toggle').addEventListener('click',()=>{
+  const on=$('filter-row').style.display==='none';
+  $('filter-row').style.display=on?'flex':'none';
+  $('btn-filter-toggle').classList.toggle('active',on);
+  if(on)renderFilterRow();
+});
+$('btn-search-toggle').addEventListener('click',()=>{
+  const on=!$('search-bar').classList.contains('visible');
+  $('search-bar').classList.toggle('visible',on);
+  $('btn-search-toggle').classList.toggle('active',on);
+  if(on)setTimeout(()=>$('search-input').focus(),100);
+  else{searchQuery='';$('search-input').value='';renderGrid();}
+});
+$('search-input').addEventListener('input',function(){searchQuery=this.value.toLowerCase();renderGrid();});
+$('btn-select-toggle').addEventListener('click',()=>{
+  bulkMode=!bulkMode;bulkSel.clear();
+  $('btn-select-toggle').classList.toggle('active',bulkMode);
+  $('bulk-bar').classList.toggle('visible',bulkMode);
+  renderGrid();
+});
+$('btn-origin-toggle').addEventListener('click',()=>{
+  curRoom.isOrigin=!curRoom.isOrigin;
+  $('btn-origin-toggle').classList.toggle('active',curRoom.isOrigin);
+  showToast(curRoom.isOrigin?'🎯 Marked as origin room':'Origin removed');
+});
+$('btn-room-sev').addEventListener('click',()=>openAssessSheet());
+function renderFilterRow(){
+  const el=$('filter-row');el.innerHTML='';
+  const reasons=new Set(curRoom.photos.map(p=>p.primary));
+  const all=document.createElement('button');all.className='filter-chip'+(filterSel.size===0?' on':'');all.textContent='All';
+  all.addEventListener('click',()=>{filterSel.clear();renderFilterRow();renderGrid();});el.appendChild(all);
+  reasons.forEach(code=>{
+    const r=findReason(code);
+    const ch=document.createElement('button');ch.className='filter-chip'+(filterSel.has(code)?' on':'');ch.textContent=r?r.label:code;
+    ch.addEventListener('click',()=>{if(filterSel.has(code))filterSel.delete(code);else filterSel.add(code);renderFilterRow();renderGrid();});
+    el.appendChild(ch);
+  });
+}
+function visPhotos(){
+  let photos=curRoom.photos;
+  if(filterSel.size)photos=photos.filter(p=>filterSel.has(p.primary));
+  if(searchQuery){
+    photos=photos.filter(p=>{
+      const r=findReason(p.primary);
+      const hay=[(r?r.label:''),p.sub||'',p.note||''].join(' ').toLowerCase();
+      return hay.includes(searchQuery);
+    });
+  }
+  return photos;
+}
+
+/* Update the Select All / Deselect All button label */
+function syncSelAllBtn(){
+  const btn=$('btn-bulk-sel-all');if(!btn)return;
+  const vp=visPhotos();
+  const allSel=vp.length>0&&vp.every(p=>bulkSel.has(p.id));
+  btn.textContent=allSel?'Deselect All':'Select All';
+}
+
+function renderGrid(){
+  const wrap=$('room-grid-wrap');wrap.innerHTML='';
+  const photos=visPhotos();
+  if(!photos.length){
+    const msg=searchQuery?`No photos matching "${searchQuery}"`:(curRoom.photos.length?'No photos match this filter':'');
+    if(!msg){
+      wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">📷</div><div class="empty-title">No photos yet</div><div class="empty-sub">Take photos from every angle</div><button class="btn btn-amber btn-md" id="btn-take-first" style="margin-top:8px">Take First Photo</button></div>`;
+      const b=$('btn-take-first');if(b)b.addEventListener('click',()=>go('scr-camera'));
+    } else {
+      wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">${esc(msg)}</div></div>`;
+    }
+    $('bulk-count-label').textContent=bulkSel.size+' selected';
+    syncSelAllBtn();
+    return;
+  }
+  const grid=document.createElement('div');grid.className='photo-grid';
+  photos.forEach(p=>{
+    const reason=findReason(p.primary);
+    const th=document.createElement('div');
+    th.className='photo-thumb'+(bulkSel.has(p.id)?' sel-thumb':'');
+    th.innerHTML=`<img src="${p.dataUrl}" /><div class="photo-thumb-tag">${esc(reason?reason.label:p.primary)}${p.sub?'<div class="photo-thumb-sub">'+esc(p.sub)+'</div>':''}</div><div class="sel-check">✓</div>`;
+
+    // Cover star button (top-right)
+    const star=document.createElement('button');
+    star.type='button';
+    star.className='cover-star'+(p.isCover?' on':'');
+    star.title=p.isCover?'Cover photo — tap to remove':'Set as cover photo';
+    star.textContent=p.isCover?'★':'☆';
+    star.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      if(p.isCover){
+        p.isCover=false;
+      } else {
+        curRoom.photos.forEach(ph=>ph.isCover=false);
+        p.isCover=true;
+        showToast('Cover photo set');
+      }
+      renderGrid();
+    });
+    th.appendChild(star);
+
+    th.addEventListener('click',()=>{
+      if(bulkMode){
+        if(bulkSel.has(p.id))bulkSel.delete(p.id);else bulkSel.add(p.id);
+        renderGrid();
+        return;
+      }
+      openPhotoEdit(p);
+    });
+    grid.appendChild(th);
+  });
+  wrap.appendChild(grid);
+  $('bulk-count-label').textContent=bulkSel.size+' selected';
+  syncSelAllBtn();
+}
+
+/* ── Bulk bar ── */
+// Select All / Deselect All
+$('btn-bulk-sel-all').addEventListener('click',()=>{
+  const vp=visPhotos();
+  const allSel=vp.length>0&&vp.every(p=>bulkSel.has(p.id));
+  if(allSel){vp.forEach(p=>bulkSel.delete(p.id));}
+  else{vp.forEach(p=>bulkSel.add(p.id));}
+  renderGrid();
+});
+$('btn-bulk-cancel').addEventListener('click',()=>{
+  bulkMode=false;bulkSel.clear();
+  $('btn-select-toggle').classList.remove('active');
+  $('bulk-bar').classList.remove('visible');
+  renderGrid();
+});
+$('bulk-delete').addEventListener('click',()=>{
+  if(!bulkSel.size){showToast('Select photos first');return;}
+  $('confirm-del-msg').textContent='Delete '+bulkSel.size+' photo(s)?';
+  $('confirm-del').classList.add('open');
+});
+$('confirm-del-cancel').addEventListener('click',()=>$('confirm-del').classList.remove('open'));
+$('confirm-del-ok').addEventListener('click',()=>{
+  const n=bulkSel.size;
+  curRoom.photos=curRoom.photos.filter(p=>!bulkSel.has(p.id));
+  bulkSel.clear();$('confirm-del').classList.remove('open');
+  bulkMode=false;$('btn-select-toggle').classList.remove('active');$('bulk-bar').classList.remove('visible');
+  renderFilterRow();renderGrid();
+  showToast(`Deleted ${n} photo${n===1?'':'s'}`);
+});
+$('bulk-reason').addEventListener('click',()=>{
+  if(!bulkSel.size){showToast('Select photos first');return;}
+  bulkReasonPick=null;
+  const el=$('bulk-reason-grid');el.innerHTML='';
+  function addReasonBtn(r){
+    const b=document.createElement('button');b.type='button';b.className='reason-btn';
+    b.innerHTML=`<span class="reason-label">${esc(r.label)}</span>`;
+    b.addEventListener('click',()=>{bulkReasonPick=r.code;el.querySelectorAll('.reason-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');});
+    el.appendChild(b);
+  }
+  PRIMARY_REASONS.forEach(r=>addReasonBtn(r));
+  MORE_REASONS.forEach(r=>addReasonBtn(r));
+  openSheet('sheet-bulk-reason');
+});
+$('bulk-reason-cancel').addEventListener('click',()=>closeSheet('sheet-bulk-reason'));
+$('bulk-reason-apply').addEventListener('click',()=>{
+  if(!bulkReasonPick){closeSheet('sheet-bulk-reason');return;}
+  const n=bulkSel.size;const r=findReason(bulkReasonPick);
+  curRoom.photos.forEach(p=>{if(bulkSel.has(p.id)){p.primary=bulkReasonPick;p.sub='';}});
+  closeSheet('sheet-bulk-reason');
+  bulkMode=false;bulkSel.clear();$('btn-select-toggle').classList.remove('active');$('bulk-bar').classList.remove('visible');
+  renderFilterRow();renderGrid();
+  showToast(`Reason → ${r?r.label:bulkReasonPick} (${n} photo${n===1?'':'s'})`);
+});
+$('bulk-note').addEventListener('click',()=>{
+  if(!bulkSel.size){showToast('Select photos first');return;}
+  $('inp-bulk-note').value='';openSheet('sheet-bulk-note');
+});
+$('bulk-note-cancel').addEventListener('click',()=>closeSheet('sheet-bulk-note'));
+$('bulk-note-apply').addEventListener('click',()=>{
+  const note=$('inp-bulk-note').value.trim();const n=bulkSel.size;
+  curRoom.photos.forEach(p=>{if(bulkSel.has(p.id))p.note=note;});
+  closeSheet('sheet-bulk-note');
+  bulkMode=false;bulkSel.clear();$('btn-select-toggle').classList.remove('active');$('bulk-bar').classList.remove('visible');
+  renderGrid();
+  showToast(`Note ${note?'added':'cleared'} (${n} photo${n===1?'':'s'})`);
+});
+$('bulk-room').addEventListener('click',()=>{
+  if(!bulkSel.size){showToast('Select photos first');return;}
+  const el=$('bulk-room-list');el.innerHTML='';
+  // Show ALL rooms across ALL floors
+  curOrder.floors.forEach((f,fi)=>{
+    const otherRooms=f.rooms.filter(r=>r!==curRoom);
+    if(!otherRooms.length)return;
+    const lbl=document.createElement('div');lbl.className='switch-floor-label';lbl.textContent=f.name;
+    el.appendChild(lbl);
+    otherRooms.forEach(r=>{
+      const item=document.createElement('div');item.className='room-switch-item';
+      item.innerHTML=`<div style="flex:1"><div class="card-title" style="font-size:14px">${esc(r.displayName)}</div><div class="card-sub" style="font-size:12px">${r.photos.length} photo(s)</div></div>`;
+      item.addEventListener('click',()=>{
+        const n=bulkSel.size;
+        const ids=new Set(bulkSel);
+        const movers=curRoom.photos.filter(p=>ids.has(p.id));
+        curRoom.photos=curRoom.photos.filter(p=>!ids.has(p.id));
+        movers.forEach(p=>r.photos.push(p));
+        closeSheet('sheet-bulk-room');
+        bulkMode=false;bulkSel.clear();$('btn-select-toggle').classList.remove('active');$('bulk-bar').classList.remove('visible');
+        renderFilterRow();renderGrid();
+        showToast(`Moved ${n} photo${n===1?'':'s'} to ${r.displayName}`);
+      });
+      el.appendChild(item);
+    });
+  });
+  if(!el.children.length)el.innerHTML='<div style="text-align:center;color:var(--text-muted);padding:16px">No other rooms available.</div>';
+  openSheet('sheet-bulk-room');
+});
+$('bulk-room-cancel').addEventListener('click',()=>closeSheet('sheet-bulk-room'));
+
+/* ── Camera ── */
+function startCam(){
+  const vid=$('cam-video'),fb=$('cam-fallback'),btn=$('btn-capture');
+  if(camStream){vid.srcObject=camStream;vid.style.display='block';fb.style.display='none';btn.disabled=false;return;}
+  fb.style.display='flex';fb.querySelector('div:last-child').textContent='Starting camera…';vid.style.display='none';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920}}})
+    .then(s=>{camStream=s;vid.srcObject=s;vid.style.display='block';fb.style.display='none';btn.disabled=false;})
+    .catch(()=>{fb.querySelector('div:last-child').textContent='Camera not available. Use HTTPS or localhost.';btn.disabled=true;});
+}
+function stopCam(){
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  const vid=$('cam-video');vid.srcObject=null;vid.style.display='none';
+  $('cam-fallback').style.display='flex';
+}
+$('cam-close').addEventListener('click',()=>{
+  stopCam();
+  // Pop scr-camera, then skip any scr-review underneath (from + Another flow)
+  if(stack[stack.length-1]==='scr-camera')stack.pop();
+  if(stack[stack.length-1]==='scr-review')stack.pop();
+  const prev=stack[stack.length-1];
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===prev));
+  onEnter(prev);
+});
+$('cam-floor-plan').addEventListener('click',()=>{
+  stopCam();
+  // Clear back to scr-order, discarding camera and room history
+  while(stack.length>1 && stack[stack.length-1]!=='scr-order')stack.pop();
+  go('scr-order');
+});
+$('btn-capture').addEventListener('click',()=>{
+  const v=$('cam-video');if(!camStream||!v.videoWidth)return;
+  // Crop canvas to match the object-fit:cover viewfinder aspect ratio
+  const vAspect=v.videoWidth/v.videoHeight;
+  const cAspect=v.clientWidth/v.clientHeight;
+  let sx=0,sy=0,sw=v.videoWidth,sh=v.videoHeight;
+  if(vAspect>cAspect){sw=Math.round(v.videoHeight*cAspect);sx=Math.round((v.videoWidth-sw)/2);}
+  else{sh=Math.round(v.videoWidth/cAspect);sy=Math.round((v.videoHeight-sh)/2);}
+  const c=document.createElement('canvas');c.width=sw;c.height=sh;
+  c.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,sw,sh);
+  capturedUrl=c.toDataURL('image/jpeg',.85);
+  stopCam();editingPhoto=null;
+  go('scr-review');
+});
+
+/* ── Photo review ── */
+function initReview(){
+  $('rev-img').src=capturedUrl;
+  $('rev-room-label').textContent=curRoom.displayName;
+  const lt=lastTags[curRoom.displayName];
+  if(lt&&lt._keepForNext){
+    selPrimary=lt.primary;selSubs=new Set(lt.subs||[]);$('review-note').value=lt.note||'';
+    lt._keepForNext=false;
+  } else {
+    selPrimary=null;selSubs=new Set();$('review-note').value='';
+  }
+  revIsCover=curRoom.photos.length===0; // auto-cover for first photo
+  $('btn-save').textContent='✓ Save';
+  $('btn-take-another').textContent='+ Another';
+  $('rev-cover-btn').textContent=revIsCover?'★':'☆';
+  $('rev-cover-btn').classList.toggle('on',revIsCover);
+  $('rev-retake').style.display='';
+  stopSpeak();
+  renderAllReasons();renderTagPills();
+}
+function initEditReview(){
+  const p=editingPhoto;
+  $('rev-img').src=p.dataUrl;
+  $('rev-room-label').textContent=curRoom.displayName;
+  selPrimary=p.primary;selSubs=new Set(p.sub?p.sub.split(', ').filter(Boolean):[]);
+  $('review-note').value=p.note||'';
+  revIsCover=p.isCover;
+  $('btn-save').textContent='✓ Update';
+  $('btn-take-another').textContent='🗑 Delete';
+  $('rev-cover-btn').textContent=revIsCover?'★':'☆';
+  $('rev-cover-btn').classList.toggle('on',revIsCover);
+  $('rev-retake').style.display='none'; // no retake when editing saved photo
+  stopSpeak();
+  renderAllReasons();renderTagPills();
+}
+function renderAllReasons(){
+  const grid=$('primary-grid');grid.innerHTML='';
+  if(selPrimary){
+    // Collapsed: single amber chip + change link
+    const r=findReason(selPrimary);
+    const chip=document.createElement('div');chip.className='selected-reason-chip';
+    chip.innerHTML=`<span>${esc(r?r.label:selPrimary)}</span><button class="change-btn" id="btn-change-reason">← Change</button>`;
+    grid.appendChild(chip);
+    $('btn-change-reason').addEventListener('click',()=>{
+      selPrimary=null;selSubs=new Set();
+      renderAllReasons();renderTagPills();
+    });
+  } else {
+    // Expanded: full grid of all reasons
+    function addBtn(r,i){
+      const b=document.createElement('button');b.type='button';b.className='reason-btn';
+      b.innerHTML=`<span class="reason-num">${i+1}</span><span class="reason-label">${esc(r.label)}</span>`;
+      b.addEventListener('click',()=>{
+        selPrimary=r.code;selSubs=new Set();
+        renderAllReasons();renderTagPills();
+      });
+      grid.appendChild(b);
+    }
+    PRIMARY_REASONS.forEach((r,i)=>addBtn(r,i+1));
+    MORE_REASONS.forEach((r,i)=>addBtn(r,i+1));
+  }
+  renderSubPanel();
+  syncReviewFooter();
+}
+function renderSubPanel(){
+  const sub=$('sub-panel');
+  if(!selPrimary){sub.style.display='none';return;}
+  const subs=SUB_MAP[selPrimary]||[];
+  if(!subs.length){sub.style.display='none';return;}
+  sub.style.display='block';
+  const r=findReason(selPrimary);
+  $('sub-section-label').textContent=(r?r.label:'')+' Details';
+  const grid=$('sub-grid');grid.innerHTML='';
+  subs.forEach((s,i)=>{
+    const last=i===subs.length-1&&subs.length%2===1;
+    const b=document.createElement('button');b.type='button';b.className='reason-btn'+(last?' full':'')+(selSubs.has(s)?' selected':'');
+    b.innerHTML=`<span class="reason-num">${i+1}</span><span class="reason-label">${esc(s)}</span>`;
+    b.addEventListener('click',()=>{
+      if(selSubs.has(s))selSubs.delete(s);else selSubs.add(s);
+      renderSubPanel();renderTagPills();
+    });
+    grid.appendChild(b);
+  });
+}
+function syncReviewFooter(){
+  $('review-panel-footer').style.display=(selPrimary||editingPhoto)?'flex':'none';
+}
+function renderTagPills(){
+  const el=$('rev-tag-pills');el.innerHTML='';
+  if(selPrimary){const r=findReason(selPrimary);const s=document.createElement('span');s.className='tag-pill';s.textContent=r?r.label:selPrimary;el.appendChild(s);}
+  selSubs.forEach(sv=>{const s=document.createElement('span');s.className='tag-pill';s.textContent=sv;el.appendChild(s);});
+  const n=$('review-note').value.trim();
+  if(n){const s=document.createElement('span');s.className='tag-pill';s.textContent=n;el.appendChild(s);}
+}
+$('review-note').addEventListener('input',renderTagPills);
+// X = discard photo + return to room grid
+$('rev-close').addEventListener('click',()=>{
+  stopSpeak();editingPhoto=null;capturedUrl='';
+  if(stack[stack.length-1]==='scr-review')stack.pop();
+  if(stack[stack.length-1]==='scr-camera')stack.pop();
+  const dest=stack[stack.length-1]||'scr-room';
+  go(dest);
+});
+// Retake = go back to camera
+$('rev-retake').addEventListener('click',()=>{stopSpeak();editingPhoto=null;goBack();});
+$('rev-cover-btn').addEventListener('click',()=>{
+  revIsCover=!revIsCover;
+  $('rev-cover-btn').textContent=revIsCover?'★':'☆';
+  $('rev-cover-btn').classList.toggle('on',revIsCover);
+});
+
+function doSavePhoto(){
+  if(!selPrimary)selPrimary=PRIMARY_REASONS[0].code;
+  // If marking as cover, clear any existing cover first
+  if(revIsCover)curRoom.photos.forEach(ph=>ph.isCover=false);
+  const p={id:nextPhotoId++,dataUrl:capturedUrl,primary:selPrimary,sub:[...selSubs].join(', '),note:$('review-note').value.trim(),isCover:revIsCover};
+  curRoom.photos.push(p);
+  return p;
+}
+
+// Save → reset tags → back to room grid
+$('btn-save').addEventListener('click',()=>{
+  if(editingPhoto){
+    editingPhoto.primary=selPrimary||PRIMARY_REASONS[0].code;
+    editingPhoto.sub=[...selSubs].join(', ');editingPhoto.note=$('review-note').value.trim();
+    if(revIsCover){curRoom.photos.forEach(ph=>ph.isCover=false);editingPhoto.isCover=true;}
+    else{editingPhoto.isCover=false;}
+    editingPhoto=null;stopSpeak();goBack();
+  } else {
+    doSavePhoto();
+    selPrimary=null;selSubs=new Set();
+    lastTags[curRoom.displayName]=null;
+    stopSpeak();goBack();
+  }
+});
+
+// + Another → save with current reason → keep reason for next photo
+$('btn-take-another').addEventListener('click',()=>{
+  if(editingPhoto){
+    curRoom.photos=curRoom.photos.filter(p=>p.id!==editingPhoto.id);
+    editingPhoto=null;stopSpeak();goBack();
+  } else {
+    doSavePhoto();
+    lastTags[curRoom.displayName]={primary:selPrimary,subs:[...selSubs],note:$('review-note').value.trim(),_keepForNext:true};
+    stopSpeak();go('scr-camera');
+  }
+});
+
+function openPhotoEdit(photo){editingPhoto=photo;capturedUrl=photo.dataUrl;go('scr-review');}
+
+/* ── Note dictation (mic button in note section) ── */
+$('btn-note-mic').addEventListener('click',()=>{if(speakActive)stopSpeak();else startNoteSpeak();});
+$('speak-stop').addEventListener('click',stopSpeak);
+function startNoteSpeak(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Speech recognition not supported. Try Chrome.');return;}
+  recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+  let finalNote=$('review-note').value.trim();
+  recognition.onresult=(e)=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)finalNote+=(finalNote?' ':'')+t.trim();
+      else interim+=' '+t;
+    }
+    $('review-note').value=finalNote+(interim.trim()?' '+interim.trim():'');
+    renderTagPills();
+  };
+  recognition.onerror=()=>stopSpeak();
+  recognition.onend=()=>{if(speakActive)try{recognition.start();}catch(e){}};
+  recognition.start();speakActive=true;
+  $('speak-bar').classList.add('visible','listening');
+  $('speak-text').textContent='🎙 Listening for note…';
+  $('btn-note-mic').textContent='⏹';
+}
+function stopSpeak(){
+  speakActive=false;if(recognition)try{recognition.stop();}catch(e){}recognition=null;
+  $('speak-bar').classList.remove('visible','listening');
+  const micBtn=$('btn-note-mic');if(micBtn)micBtn.textContent='🎙';
+  const ta=$('review-note');if(ta){ta.value=ta.value.trim();renderTagPills();}
+}
+
+/* ── Room Impact Assessment sheet ── */
+function openAssessSheet(){
+  // Build a working copy: start from full effective (inherited) severity so user sees current values
+  assessRoomSev=JSON.parse(JSON.stringify(effectiveSev(curRoom)));
+  // Ensure all keys present
+  LOSS_TYPES.forEach(lt=>{if(!assessRoomSev[lt.code])assessRoomSev[lt.code]={sev:0,details:{}};});
+
+  // Show inherited (order + floor) chips as context
+  const inherited=effectiveSev(null,curFloorIdx); // order+floor only (pass null room)
+  const row=$('assess-inherited-row');row.innerHTML='';
+  let anyInherited=false;
+  LOSS_TYPES.forEach(lt=>{
+    const s=inherited[lt.code];
+    if(s&&s.sev>0){anyInherited=true;
+      const chip=document.createElement('span');chip.className='inherited-sev-chip';
+      chip.textContent=lt.icon+' '+lt.label+' ('+s.sev+')';row.appendChild(chip);
+    }
+  });
+  if(!anyInherited){
+    const chip=document.createElement('span');chip.className='inherited-sev-chip';chip.textContent='No inherited severity';row.appendChild(chip);
+  }
+
+  renderLossCards('assess-loss-cards',assessRoomSev,'assess');
+  openSheet('sheet-room-assess');
+}
+$('assess-skip').addEventListener('click',()=>closeSheet('sheet-room-assess'));
+$('assess-not-affected').addEventListener('click',()=>{
+  // Explicit zeros for all types = room is clear
+  const clr=emptySev();
+  curRoom.severity=clr;curRoom.assessed=true;
+  closeSheet('sheet-room-assess');
+  showToast('✓ Room marked as clear');
+  renderOrder();
+});
+$('assess-confirm').addEventListener('click',()=>{
+  curRoom.severity=assessRoomSev;curRoom.assessed=true;
+  closeSheet('sheet-room-assess');
+  const active=LOSS_TYPES.filter(lt=>assessRoomSev[lt.code]&&assessRoomSev[lt.code].sev>0);
+  showToast(active.length?active.map(lt=>lt.icon+' '+lt.label).join(' · '):'Assessment saved');
+  renderOrder();
+});
+$('assess-reset').addEventListener('click',()=>{
+  curRoom.severity=null;curRoom.assessed=true;
+  closeSheet('sheet-room-assess');showToast('Room reset to floor/order defaults');renderOrder();
+});
+
+/* ── Floor Severity Override sheet ── */
+function syncFloorSevUniform(){
+  const isYes=editFloorUniform;
+  $('floor-sev-uniform-yes').className='btn btn-sm'+(isYes?' btn-amber':' btn-white');
+  $('floor-sev-uniform-no').className='btn btn-sm'+(!isYes?' btn-amber':' btn-white');
+}
+$('floor-sev-uniform-yes').addEventListener('click',()=>{editFloorUniform=true;syncFloorSevUniform();});
+$('floor-sev-uniform-no').addEventListener('click',()=>{editFloorUniform=false;syncFloorSevUniform();});
+
+function openFloorSevSheet(){
+  const fl=curOrder.floors[editFloorIdx];
+  // Pre-fill: start from order-level severity (so user sees inherited values), then apply floor override on top
+  const base=JSON.parse(JSON.stringify(curOrder.severity||emptySev()));
+  if(fl.severity)mergeSev(base,fl.severity);
+  editFloorSev=base;
+  LOSS_TYPES.forEach(lt=>{if(!editFloorSev[lt.code])editFloorSev[lt.code]={sev:0,details:{}};});
+  editFloorUniform=!!fl.uniformSeverity;
+  renderLossCards('floor-sev-cards',editFloorSev,'floorsev');
+  syncFloorSevUniform();
+  openSheet('sheet-floor-sev');
+}
+$('floor-sev-cancel').addEventListener('click',()=>{
+  floorSevOpenRoom=false;
+  closeSheet('sheet-floor-sev');
+});
+$('floor-sev-save').addEventListener('click',()=>{
+  curOrder.floors[editFloorIdx].severity=editFloorSev;
+  curOrder.floors[editFloorIdx].uniformSeverity=editFloorUniform;
+  closeSheet('sheet-floor-sev');
+  showToast('Floor severity saved');
+  renderOrder();
+  if(floorSevOpenRoom){floorSevOpenRoom=false;openAddRoomSheet();}
+});
+$('floor-sev-reset').addEventListener('click',()=>{
+  curOrder.floors[editFloorIdx].severity=null;
+  curOrder.floors[editFloorIdx].uniformSeverity=false;
+  editFloorUniform=false;
+  closeSheet('sheet-floor-sev');showToast('Floor reset to order defaults');renderOrder();
+  if(floorSevOpenRoom){floorSevOpenRoom=false;openAddRoomSheet();}
+});
+
+/* ── Scope Done ── */
+$('btn-scope-done').addEventListener('click',()=>{
+  const totalFloors=curOrder.floors.length;
+  const totalRooms=curOrder.floors.reduce((a,f)=>a+f.rooms.length,0);
+  const totalPhotos=curOrder.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
+
+  // Build stats
+  const statsEl=$('scope-summary');
+  statsEl.innerHTML=`<div class="scope-stats">${totalFloors} floor${totalFloors===1?'':'s'} &nbsp;·&nbsp; ${totalRooms} room${totalRooms===1?'':'s'} &nbsp;·&nbsp; ${totalPhotos} photo${totalPhotos===1?'':'s'}</div>`;
+
+  // Find issues — each issue carries {msg, room, floorIdx} for navigation
+  const issues=[];
+  curOrder.floors.forEach((f,fi)=>{
+    if(f.notAffected)return;  // skip floors marked clear
+    f.rooms.forEach(r=>{
+      if(r.photos.length===0)issues.push({msg:`${r.displayName} — no photos`,room:r,floorIdx:fi});
+      else{
+        const missing=r.photos.filter(p=>!p.primary).length;
+        if(missing>0)issues.push({msg:`${r.displayName} — ${missing} photo${missing===1?'':'s'} missing reason`,room:r,floorIdx:fi});
+      }
+      if(r.assessed===false)issues.push({msg:`${r.displayName} — not yet assessed`,room:r,floorIdx:fi});
+    });
+  });
+
+  const issuesEl=$('scope-issues');issuesEl.innerHTML='';
+  if(issues.length===0){
+    issuesEl.innerHTML='<div class="scope-ok-banner">✓ All rooms look good — ready to confirm!</div>';
+    $('scope-confirm').textContent='✓ Confirm Complete';
+  } else {
+    const lbl=document.createElement('div');lbl.className='scope-section-label';lbl.textContent=issues.length+' item'+(issues.length===1?'':'s')+' to review';
+    issuesEl.appendChild(lbl);
+    issues.forEach(({msg,room,floorIdx})=>{
+      const item=document.createElement('div');
+      item.className='scope-issue-item scope-issue-link';
+      item.textContent=msg+' →';
+      item.addEventListener('click',()=>{
+        closeSheet('sheet-scope-review');
+        curFloorIdx=floorIdx;
+        curRoom=room;
+        go('scr-room');
+      });
+      issuesEl.appendChild(item);
+    });
+    $('scope-confirm').textContent='Proceed Anyway →';
+  }
+
+  openSheet('sheet-scope-review');
+});
+$('scope-keep-editing').addEventListener('click',()=>closeSheet('sheet-scope-review'));
+$('scope-confirm').addEventListener('click',()=>{
+  curOrder.scopeComplete=true;
+  closeSheet('sheet-scope-review');
+  showToast('✓ Scope marked complete');
+  renderOrder();
+  renderOrders();  // update order card badge
+});
+
+/* Close sheets on backdrop tap */
+document.querySelectorAll('.sheet-overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+/* ── Seed data ── */
+(function(){
+  const sev=emptySev();
+  sev.fire.sev=2;sev.fire.details={Heat:1,Soot:2};
+  sev.water.sev=1;
+  const o={
+    id:nextOrderId++,address:'11 New Street, New York NY',
+    date:new Date().toLocaleDateString(),
+    offerings:['Textiles'],
+    severity:sev,
+    uniformSeverity:false,
+    scopeComplete:false,
+    floors:[
+      {name:'Floor 1',severity:null,notAffected:false,uniformSeverity:false,rooms:[
+        {name:'Kitchen',displayName:'1. Kitchen',photos:[],assessed:false,severity:null,isOrigin:false},
+        {name:'Living Room',displayName:'1. Living Room',photos:[],assessed:false,severity:null,isOrigin:false},
+      ]},
+      {name:'Floor 2',severity:null,notAffected:false,uniformSeverity:false,rooms:[
+        {name:'Master Bedroom',displayName:'2. Master Bedroom',photos:[],assessed:false,severity:null,isOrigin:false},
+      ]},
+    ],
+  };
+  orders.push(o);
+  renderOrders();
+})();
+})();
+</script>
+</body>
+</html>

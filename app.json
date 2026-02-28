@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Photo Scope",
+    "slug": "photo-scope",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "photo-scope",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Photo Scope to access your camera to capture photos for orders."
+        }
+      ],
+      [
+        "expo-speech",
+        {}
+      ]
+    ]
+  }
+}
