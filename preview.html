@@ -151,9 +151,15 @@
     .review-hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;z-index:5}
     .review-close{height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 14px;font-family:var(--font);gap:5px}
     .review-tags-overlay{position:absolute;bottom:0;left:0;right:0;padding:32px 14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
-    .review-room-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;font-family:var(--mono)}
+    .review-header-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+    .review-room-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.7px;font-family:var(--mono);flex:1;min-width:0}
+    .review-badges{display:flex;gap:6px;flex-wrap:wrap}
+    .review-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba(0,0,0,.5);color:#fff;border:1px solid rgba(255,255,255,.3)}
+    .review-badge.origin{background:rgba(245,158,11,.7);color:#111;border-color:rgba(245,158,11,.9)}
+    .review-badge.cover{background:rgba(255,255,255,.25);color:#fff;border-color:rgba(255,255,255,.4)}
     .tag-pills{display:flex;flex-wrap:wrap;gap:7px}
     .tag-pill{background:rgba(255,255,255,.94);color:#111;padding:7px 14px;border-radius:8px;font-size:15px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+    .tag-pill-note{font-size:16px;padding:9px 16px;background:rgba(0,0,0,.55);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
     .review-panel{flex:0 0 auto;max-height:52%;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-top:1px solid rgba(255,255,255,.08)}
     .review-panel-scroll{flex:1;overflow-y:auto;padding:8px 14px 0}
     .review-panel-footer{flex-shrink:0;padding:10px 16px 16px;background:var(--surface);border-top:1px solid var(--border);display:none;gap:10px}
@@ -171,6 +177,7 @@
     .note-wrap{margin-top:14px}
     .note-label{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
     .note-input{width:100%;padding:11px 13px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--r-xs);background:var(--surface);color:var(--text);font-family:var(--font);resize:none;outline:none}
+    .note-input-review{font-size:16px;padding:12px 14px;min-height:56px}
     .note-input:focus{border-color:var(--accent)}
 
     /* ── Speak bar ── */
@@ -193,7 +200,8 @@
     .room-status-nfu{background:#f8fafc;color:var(--text-muted);border:1px solid var(--border)}
     .room-title:hover{color:var(--accent-dark)}
     .room-cam-fab{width:42px;height:42px;border-radius:21px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow-md)}
-    .room-toolbar{display:flex;gap:8px;padding-bottom:12px}
+    .room-toolbar{display:flex;gap:8px;padding-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+    .room-toolbar .toolbar-btn{flex-shrink:0}
     .toolbar-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--text-sec);display:flex;align-items:center;gap:5px}
     .toolbar-btn.active{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent-dark)}
 
@@ -361,6 +369,8 @@
     .impact-badge-pb{background:#faf5ff;color:#9333ea;border:1px solid #e9d5ff}
     .impact-badge-debris{background:#fafafa;color:#78716c;border:1px solid #d6d3d1}
     .origin-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;letter-spacing:.2px}
+    .summary-cover-badge{position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;z-index:2;display:flex;align-items:center;gap:4px}
+    .cover-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;letter-spacing:.2px}
 
     .spacer16{height:16px}
     .pad16{padding:0 16px}
@@ -381,6 +391,10 @@
     .swipe-counter{color:#fff;font-size:14px;font-weight:600}
     .swipe-area{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;touch-action:pan-y pinch-zoom}
     .swipe-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px 20px 24px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:6px}
+    .swipe-header{font-size:12px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .swipe-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px}
+    .swipe-badge.origin{background:rgba(245,158,11,.8);color:#111}
+    .swipe-badge.cover{background:rgba(255,255,255,.25);color:#fff}
     .swipe-overlay .tag-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .swipe-overlay .tag-pill{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:8px;font-size:13px}
     .swipe-arrows{position:absolute;bottom:80px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:15;pointer-events:none}
@@ -529,12 +543,12 @@
         <button class="room-cam-fab" id="room-cam-fab">📷</button>
       </div>
       <div class="room-toolbar">
+        <button class="toolbar-btn" id="btn-room-sev" title="View and edit room severity">📊 Sev</button>
         <button class="toolbar-btn" id="btn-search-toggle">🔍 Search</button>
         <button class="toolbar-btn" id="btn-filter-toggle">⚡ Filter</button>
         <button class="toolbar-btn" id="btn-review-swipe" title="Swipe through photos">👁 Review</button>
         <button class="toolbar-btn" id="btn-select-toggle">☑ Select</button>
         <button class="toolbar-btn" id="btn-origin-toggle">🎯 Origin</button>
-        <button class="toolbar-btn" id="btn-room-sev">📊 Sev</button>
       </div>
     </div>
     <div class="search-bar" id="search-bar">
@@ -622,7 +636,10 @@
         </div>
       </div>
       <div class="review-tags-overlay">
-        <div class="review-room-label" id="rev-room-label"></div>
+        <div class="review-header-row">
+          <div class="review-room-label" id="rev-room-label"></div>
+          <div class="review-badges" id="rev-badges"></div>
+        </div>
         <div class="tag-pills" id="rev-tag-pills"></div>
       </div>
     </div>
@@ -643,7 +660,7 @@
         <div class="note-wrap">
           <div class="note-label">Note (optional)</div>
           <div style="display:flex;gap:7px;align-items:flex-start">
-            <textarea class="note-input" id="review-note" rows="2" placeholder="Quick note..." style="flex:1;min-width:0"></textarea>
+            <textarea class="note-input note-input-review" id="review-note" rows="2" placeholder="Quick note..." style="flex:1;min-width:0"></textarea>
             <button id="btn-note-mic" title="Dictate note" style="flex-shrink:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xs);padding:8px 10px;font-size:17px;cursor:pointer;line-height:1;align-self:stretch">🎙</button>
           </div>
         </div>
@@ -666,6 +683,12 @@
       <div class="room-preset-grid" id="room-presets"></div>
       <div id="add-room-multi-bar" style="display:none;margin-bottom:10px">
         <button class="btn btn-amber btn-md btn-full" id="do-add-rooms-bulk">Add Selected Rooms →</button>
+      </div>
+      <div id="add-room-origin-row" style="display:none;margin-bottom:12px;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);border:1.5px solid var(--border)">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text)">
+          <input type="checkbox" id="add-room-origin-cb" style="width:20px;height:20px;accent-color:var(--accent)" />
+          <span>🎯 Is this the origin room?</span>
+        </label>
       </div>
       <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:7px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px">Or custom name</div>
       <div style="display:flex;gap:8px">
@@ -833,7 +856,8 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="sheet-title" id="room-summary-title"></div>
-      <div id="room-summary-cover" style="margin:8px 0;border-radius:10px;overflow:hidden;max-height:160px;display:flex;align-items:center;justify-content:center;background:var(--surface2)"></div>
+      <div id="room-summary-badges" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+      <div id="room-summary-cover" style="margin:8px 0;border-radius:10px;overflow:hidden;max-height:160px;display:flex;align-items:center;justify-content:center;background:var(--surface2);position:relative"></div>
       <div id="room-summary-body" style="font-size:13px;color:var(--text-sec);line-height:1.6"></div>
       <div style="display:flex;gap:10px;margin-top:16px">
         <button class="btn btn-white btn-md" id="room-summary-back" style="flex:1">← Back to Room</button>
@@ -912,13 +936,14 @@ let editFloorSev={};            // working severity in floor-sev sheet
 const expandedLossCards=new Set(); // expanded loss cards in wiz/assess/floor sheets
 let guidedMode=localStorage.getItem('guidedMode')!=='false';
 let guideStep=null;
+let guidedFromTakeAnother=false;  // Don't advance hint step until Save (not + Another)
 
 /* ── Helpers ── */
 function $(id){return document.getElementById(id)}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function openSheet(id){$(id).classList.add('open')}
 function closeSheet(id){$(id).classList.remove('open')}
-function showToast(msg,dur=2200){
+function showToast(msg,dur=3800){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
   const t=document.createElement('div');t.className='toast';t.textContent=msg;
   document.querySelector('.phone').appendChild(t);
@@ -966,6 +991,7 @@ function onEnter(id){
   if(id==='scr-order')renderOrder();
   if(id==='scr-room'){
     if(curRoom)lastTags[curRoom.displayName]=null;
+    guidedFromTakeAnother=false;
     renderRoom();
   }
   if(id==='scr-photo-swipe')updateSwipeDisplay();
@@ -981,7 +1007,11 @@ function onEnter(id){
       } else if(curRoom.photos.length===0){
         showCamHint('Take before photos from every angle — show the room as you found it');
       } else if(curRoom.photos.some(p=>p.primary==='BEF')&&!curRoom.photos.some(p=>p.primary!=='BEF')){
-        showCamHint('Now photograph items we\'ll be working on — select a reason to describe what we\'ll do');
+        if(guidedFromTakeAnother){
+          showCamHint('Continue taking before photos from other angles');
+        } else {
+          showCamHint('Now photograph items we\'ll be working on — select a reason to describe what we\'ll do');
+        }
       }
     }
   }
@@ -1503,12 +1533,16 @@ $('add-floor-cancel').addEventListener('click',()=>closeSheet('sheet-add-floor')
 
 /* ── Add Room ── */
 function curFloor(){return curOrder.floors[curFloorIdx]}
+function hasOrderOrigin(){return curOrder.floors.some(f=>f.rooms.some(r=>r.isOrigin))}
 function openAddRoomSheet(){
   $('inp-room-name').value='';
   addRoomMultiMode=false;addRoomMultiSel.clear();
   $('add-room-multi-toggle').classList.remove('on');
   $('add-room-multi-toggle').textContent='☐ Multiple';
   $('add-room-multi-bar').style.display='none';
+  const showOrigin=!hasOrderOrigin();
+  $('add-room-origin-row').style.display=showOrigin?'block':'none';
+  if(showOrigin)$('add-room-origin-cb').checked=false;
   buildRoomPresets();
   openSheet('sheet-add-room');
 }
@@ -1544,14 +1578,15 @@ $('add-room-multi-toggle').addEventListener('click',()=>{
 $('do-add-rooms-bulk').addEventListener('click',()=>{
   const names=[...addRoomMultiSel];
   if(!names.length)return;
-  names.forEach(n=>{
+  const markFirstAsOrigin=!hasOrderOrigin()&&$('add-room-origin-cb').checked;
+  names.forEach((n,i)=>{
     const f=curFloor();const dn=floorPrefix(f)+'. '+n;
-    f.rooms.push({name:n,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:false});
+    f.rooms.push({name:n,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:markFirstAsOrigin&&i===0});
   });
   addRoomMultiSel.clear();addRoomMultiMode=false;
   closeSheet('sheet-add-room');
   renderOrder();
-  showToast(`Added ${names.length} room${names.length===1?'':'s'} to ${curFloor().name}`);
+  showToast(markFirstAsOrigin?`🎯 Origin + ${names.length} room${names.length===1?'':'s'} added`:`Added ${names.length} room${names.length===1?'':'s'} to ${curFloor().name}`);
 });
 buildRoomPresets();
 $('do-add-room-custom').addEventListener('click',()=>{
@@ -1569,7 +1604,8 @@ function createRoom(name){
   const f=curFloor();
   const dn=floorPrefix(f)+'. '+name;
   const totalBefore=curOrder.floors.reduce((a,x)=>a+x.rooms.length,0);
-  const room={name,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:guidedMode&&curOrder._guidedOriginShown&&totalBefore===0};
+  const markFromCb=!hasOrderOrigin()&&$('add-room-origin-cb').checked;
+  const room={name,displayName:dn,photos:[],assessed:false,severity:null,isOrigin:markFromCb||(guidedMode&&curOrder._guidedOriginShown&&totalBefore===0)};
   f.rooms.push(room);
   curRoom=room;
   if(room.isOrigin)showToast('🎯 Marked as origin room');
@@ -1701,12 +1737,19 @@ function updateSwipeDisplay(){
   const p=swipePhotos[swipeIdx];
   $('swipe-img').src=p.dataUrl;
   $('swipe-counter').textContent=(swipeIdx+1)+' / '+swipePhotos.length;
+  let html='';
+  if(curRoom){
+    const badges=[];
+    if(curRoom.isOrigin)badges.push('<span class="swipe-badge origin">🎯 Origin</span>');
+    if(p.isCover)badges.push('<span class="swipe-badge cover">★ Cover</span>');
+    html+='<div class="swipe-header">'+curRoom.displayName+(badges.length?' '+badges.join(' '):'')+'</div>';
+  }
   const r=findReason(p.primary);
   const subs=(p.sub||'').split(',').map(s=>s.trim()).filter(Boolean);
-  let html='<div class="tag-line"><span class="tag-pill">'+(r?r.label:p.primary||'')+'</span>';
+  html+='<div class="tag-line"><span class="tag-pill">'+(r?r.label:p.primary||'')+'</span>';
   subs.forEach(s=>{html+='<span class="tag-pill">'+esc(s)+'</span>';});
   html+='</div>';
-  if(p.note)html+='<div style="font-size:12px;opacity:.9">'+esc(p.note)+'</div>';
+  if(p.note)html+='<div class="swipe-note" style="font-size:15px;margin-top:8px;padding:10px 14px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;line-height:1.4">'+esc(p.note)+'</div>';
   $('swipe-overlay').innerHTML=html;
 }
 $('btn-review-swipe').addEventListener('click',openSwipeView);
@@ -1918,7 +1961,7 @@ function updateCamBadge(){
     return;
   }
   $('cam-floor-plan').style.display='';
-  $('btn-cam-room-done').style.display='';
+  $('btn-cam-room-done').style.display=curRoom&&curRoom.photos.length>0?'':'none';
   const roomLabel=curRoom?curRoom.displayName:'';
   $('cam-badge').textContent=curRoom?.isOrigin?roomLabel+' · 🎯 Origin':roomLabel;
   const prelabel=$('cam-prelabel-badge');
@@ -1977,11 +2020,19 @@ function doRoomDone(){
 }
 function openRoomSummary(){
   const r=curRoom;
-  $('room-summary-title').textContent=r.displayName+' — Done';
-  const coverEl=$('room-summary-cover');
+  $('room-summary-title').textContent=r.displayName+(r.isOrigin?' 🎯':'')+' — Done';
+  const badgesEl=$('room-summary-badges');badgesEl.innerHTML='';
+  if(r.isOrigin){const b=document.createElement('span');b.className='origin-badge';b.textContent='🎯 Origin';badgesEl.appendChild(b);}
   const cover=r.photos.find(p=>p.isCover)||r.photos[0];
+  const coverEl=$('room-summary-cover');
   if(cover){
-    coverEl.innerHTML='<img src="'+cover.dataUrl+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px"/>';
+    const isCoverPhoto=cover.isCover;
+    let html='<div style="position:relative;width:100%;max-height:160px">';
+    if(isCoverPhoto)html+='<span class="summary-cover-badge">★ Cover Photo</span>';
+    html+='<img src="'+cover.dataUrl+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block"/>';
+    html+='</div>';
+    coverEl.innerHTML=html;
+    if(isCoverPhoto){const b=document.createElement('span');b.className='cover-badge';b.textContent='★ Cover';badgesEl.appendChild(b);}
   } else {
     coverEl.innerHTML='<div style="padding:20px;color:var(--text-muted);font-size:13px">No photos taken</div>';
   }
@@ -1996,12 +2047,28 @@ function openRoomSummary(){
   }
   html+='<div><b>Photos:</b> '+r.photos.length+'</div>';
   const reasons={};
-  r.photos.forEach(p=>{if(p.primary){const k=p.primary;reasons[k]=(reasons[k]||0)+1;}});
+  r.photos.forEach(p=>{
+    if(!p.primary)return;
+    const k=p.primary;
+    if(!reasons[k])reasons[k]={total:0,subs:{}};
+    reasons[k].total++;
+    (p.sub||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(sub=>{
+      reasons[k].subs[sub]=(reasons[k].subs[sub]||0)+1;
+    });
+  });
   if(Object.keys(reasons).length){
-    html+='<div style="margin-top:6px"><b>Reasons:</b></div><ul style="margin:4px 0 0 18px;padding:0">';
-    Object.entries(reasons).forEach(([code,ct])=>{
+    html+='<div style="margin-top:6px"><b>Reasons:</b></div><ul style="margin:4px 0 0 18px;padding:0;list-style:disc">';
+    Object.entries(reasons).forEach(([code,data])=>{
       const lbl=findReason(code);
-      html+='<li>'+(lbl?lbl.label:code)+' ('+ct+' photo'+(ct>1?'s':'')+')</li>';
+      const ct=data.total;
+      const subEntries=Object.entries(data.subs);
+      html+='<li>'+(lbl?lbl.label:code)+' ('+ct+' photo'+(ct>1?'s':'')+')';
+      if(subEntries.length){
+        html+='<ul style="margin:2px 0 0 16px;padding:0;list-style:circle">';
+        subEntries.forEach(([subLbl,subCt])=>html+='<li>'+esc(subLbl)+' ('+subCt+')</li>');
+        html+='</ul>';
+      }
+      html+='</li>';
     });
     html+='</ul>';
   }
@@ -2051,7 +2118,8 @@ function initReview(){
   }
   $('btn-take-another').style.display='';
   $('rev-cover-btn').style.display='';
-  $('rev-room-label').textContent=curRoom.displayName+(curRoom.isOrigin?' · 🎯 Origin':'');
+  $('rev-room-label').textContent=curRoom.displayName;
+  syncRevBadges();
   const lt=lastTags[curRoom.displayName];
   if(lt&&lt._keepForNext){
     selPrimary=lt.primary;selSubs=new Set(lt.subs||[]);$('review-note').value=lt.note||'';
@@ -2073,7 +2141,8 @@ function initReview(){
 function initEditReview(){
   const p=editingPhoto;
   $('rev-img').src=p.dataUrl;
-  $('rev-room-label').textContent=curRoom.displayName+(curRoom.isOrigin?' · 🎯 Origin':'');
+  $('rev-room-label').textContent=curRoom.displayName;
+  syncRevBadges();
   selPrimary=p.primary;selSubs=new Set(p.sub?p.sub.split(', ').filter(Boolean):[]);
   $('review-note').value=p.note||'';
   revIsCover=p.isCover;
@@ -2086,6 +2155,12 @@ function initEditReview(){
   $('rev-close').title='Back without saving';
   stopSpeak();
   renderAllReasons();renderTagPills();
+}
+function syncRevBadges(){
+  const el=$('rev-badges');el.innerHTML='';
+  if(guidedCoverPhotoMode)return;
+  if(curRoom&&curRoom.isOrigin){const b=document.createElement('span');b.className='review-badge origin';b.textContent='🎯 Origin';el.appendChild(b);}
+  if(revIsCover){const b=document.createElement('span');b.className='review-badge cover';b.textContent='★ Cover';el.appendChild(b);}
 }
 function renderAllReasons(){
   const grid=$('primary-grid');grid.innerHTML='';
@@ -2149,7 +2224,7 @@ function renderTagPills(){
   if(selPrimary){const r=findReason(selPrimary);const s=document.createElement('span');s.className='tag-pill';s.textContent=r?r.label:selPrimary;el.appendChild(s);}
   selSubs.forEach(sv=>{const s=document.createElement('span');s.className='tag-pill';s.textContent=sv;el.appendChild(s);});
   const n=$('review-note').value.trim();
-  if(n){const s=document.createElement('span');s.className='tag-pill';s.textContent=n;el.appendChild(s);}
+  if(n){const s=document.createElement('span');s.className='tag-pill tag-pill-note';s.textContent=n;el.appendChild(s);}
 }
 $('review-note').addEventListener('input',renderTagPills);
 // X = discard photo + return to room grid
@@ -2171,6 +2246,7 @@ $('rev-cover-btn').addEventListener('click',()=>{
   revIsCover=!revIsCover;
   $('rev-cover-btn').textContent=revIsCover?'★':'☆';
   $('rev-cover-btn').classList.toggle('on',revIsCover);
+  syncRevBadges();
 });
 
 function doSavePhoto(){
@@ -2205,11 +2281,12 @@ $('btn-save').addEventListener('click',()=>{
     if(revIsCover)showToast('★ Cover photo set');
     selPrimary=null;selSubs=new Set();
     lastTags[curRoom.displayName]=null;
+    guidedFromTakeAnother=false;
     stopSpeak();goBack();
   }
 });
 
-// + Another → save with current reason → keep reason for next photo
+// + Another → save with current reason → keep reason for next photo (don't advance guided step)
 $('btn-take-another').addEventListener('click',()=>{
   if(editingPhoto){
     curRoom.photos=curRoom.photos.filter(p=>p.id!==editingPhoto.id);
@@ -2217,6 +2294,7 @@ $('btn-take-another').addEventListener('click',()=>{
   } else {
     doSavePhoto();
     lastTags[curRoom.displayName]={primary:selPrimary,subs:[...selSubs],note:$('review-note').value.trim(),_keepForNext:true};
+    guidedFromTakeAnother=true;
     stopSpeak();go('scr-camera');
   }
 });
@@ -2304,24 +2382,22 @@ $('assess-not-affected').addEventListener('click',()=>{
   lastTags[curRoom.displayName]={primary:'NA',subs:[],note:'',_keepForNext:true};
   selPrimary='NA';selSubs=new Set();
   renderRoom();renderOrder();
-  showToast('📷 Take a photo to document — tagged Not Affected');
-  go('scr-camera');
+  if(!guidedMode)showToast('📷 Take a photo to document — tagged Not Affected');
+  go('scr-camera');  // In guided mode, cam hint shows instead to avoid duplication
 });
 $('assess-nothing-for-us').addEventListener('click',()=>{
   curRoom.assessed=true;curRoom.nothingForUs=true;curRoom.notAffected=false;
   closeSheet('sheet-room-assess');
-  // Pre-load NTD tag so first photo is auto-tagged, then open camera for documenting shot
   lastTags[curRoom.displayName]={primary:'NTD',subs:[],note:'',_keepForNext:true};
   selPrimary='NTD';selSubs=new Set();
   renderRoom();renderOrder();
-  showToast('📷 Take a photo to document — tagged Nothing for Us');
-  go('scr-camera');
+  if(!guidedMode)showToast('📷 Take a photo to document — tagged Nothing for Us');
+  go('scr-camera');  // In guided mode, cam hint shows instead to avoid duplication
 });
 $('assess-confirm').addEventListener('click',()=>{
   curRoom.severity=assessRoomSev;curRoom.assessed=true;
   closeSheet('sheet-room-assess');
-  const active=LOSS_TYPES.filter(lt=>assessRoomSev[lt.code]&&assessRoomSev[lt.code].sev>0);
-  showToast(active.length?active.map(lt=>lt.icon+' '+lt.label).join(' · '):'Assessment saved');
+  showToast('Room severity updated');
   renderOrder();
 });
 $('assess-reset').addEventListener('click',()=>{
