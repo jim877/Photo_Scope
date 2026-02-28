@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Photo Scope</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PhotoScope">
+  <meta name="theme-color" content="#f59e0b">
+  <link rel="manifest" href="manifest.json">
   <style>
     :root {
       --bg:#f9fafb; --surface:#fff; --surface2:#f3f4f6;
@@ -130,25 +136,27 @@
     .cam-badge{background:rgba(0,0,0,.55);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
     /* Floating shutter — no footer bar */
     .cap-float{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:10}
+    .cap-done-btn{position:absolute;bottom:38px;left:20px;z-index:10;background:rgba(0,0,0,.58);border:1.5px solid rgba(255,255,255,.35);color:#fff;padding:10px 18px;border-radius:22px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;letter-spacing:.2px}
+    .cap-done-btn:active{background:rgba(255,255,255,.18)}
     .cap-ring{width:82px;height:82px;border-radius:50%;border:3px solid rgba(255,255,255,.22);box-shadow:0 0 0 2.5px rgba(245,158,11,.65),0 0 20px rgba(245,158,11,.28),0 4px 16px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;transition:transform .12s}
     .cap-ring:hover{transform:scale(1.04)}
     .cap-btn{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#ffffff 0%,#e2e2e2 100%);border:none;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 3px 10px rgba(0,0,0,.5),inset 0 1px 3px rgba(255,255,255,.9),inset 0 -1px 2px rgba(0,0,0,.1)}
     .cap-btn:active{transform:scale(.87);box-shadow:0 1px 5px rgba(0,0,0,.4)}
     .cap-btn:disabled{opacity:.3;cursor:default}
 
-    /* ── Photo review ── */
+    /* Photo review — portrait-first layout */
     .review-screen{padding:0!important;background:#000!important}
-    .review-photo-area{height:282px;flex-shrink:0;position:relative;background:#111;overflow:hidden}
-    .review-photo-area img{width:100%;height:100%;object-fit:cover}
+    .review-photo-area{flex:1 1 auto;min-height:160px;position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .review-photo-area img{width:100%;height:100%;object-fit:contain;display:block}
     .review-hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;z-index:5}
-    .review-close{width:34px;height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .review-close{height:34px;border-radius:17px;background:rgba(0,0,0,.5);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 14px;font-family:var(--font);gap:5px}
     .review-tags-overlay{position:absolute;bottom:0;left:0;right:0;padding:32px 14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
     .review-room-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;font-family:var(--mono)}
     .tag-pills{display:flex;flex-wrap:wrap;gap:7px}
     .tag-pill{background:rgba(255,255,255,.94);color:#111;padding:7px 14px;border-radius:8px;font-size:15px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-    .review-panel{flex:1;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
-    .review-panel-scroll{flex:1;overflow-y:auto;padding:10px 14px 0}
-    .review-panel-footer{flex-shrink:0;padding:12px 16px 20px;background:var(--surface);border-top:1px solid var(--border);display:none;gap:10px}
+    .review-panel{flex:0 0 auto;max-height:52%;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-top:1px solid rgba(255,255,255,.08)}
+    .review-panel-scroll{flex:1;overflow-y:auto;padding:8px 14px 0}
+    .review-panel-footer{flex-shrink:0;padding:10px 16px 16px;background:var(--surface);border-top:1px solid var(--border);display:none;gap:10px}
     .review-panel-footer .btn{flex:1}
 
     /* ── Reason grid ── */
@@ -177,9 +185,12 @@
 
     /* ── Room screen ── */
     .room-header-area{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;flex-shrink:0}
-    .room-breadcrumb{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;cursor:pointer;opacity:.7}
+    .room-breadcrumb{font-family:var(--mono);font-size:12px;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;cursor:pointer;font-weight:700;opacity:1}
     .room-header-row{display:flex;align-items:center;margin-bottom:12px}
-    .room-title{font-size:22px;font-weight:800;letter-spacing:-.4px;flex:1;cursor:pointer}
+    .room-title{font-size:22px;font-weight:800;letter-spacing:-.4px;cursor:pointer}
+    .room-status-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;cursor:pointer}
+    .room-status-na{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+    .room-status-nfu{background:#f8fafc;color:var(--text-muted);border:1px solid var(--border)}
     .room-title:hover{color:var(--accent-dark)}
     .room-cam-fab{width:42px;height:42px;border-radius:21px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow-md)}
     .room-toolbar{display:flex;gap:8px;padding-bottom:12px}
@@ -251,6 +262,7 @@
     /* Room card within a floor section */
     .floor-room-card{background:var(--surface);cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--border)}
     .floor-room-card:active{background:var(--surface2)}
+    .floor-room-done{opacity:.6}
     .floor-room-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted)}
     .floor-room-thumb img{width:100%;height:100%;object-fit:cover}
     .floor-room-body{flex:1;min-width:0}
@@ -258,8 +270,12 @@
     .floor-room-meta{font-size:12px;color:var(--text-sec);margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
     .floor-room-count{font-size:12px;color:var(--text-muted);white-space:nowrap;margin-left:auto;padding-right:2px;flex-shrink:0}
     .floor-room-empty{padding:14px 16px;font-size:13px;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px solid var(--border)}
+    .floor-add-room-row{display:block;width:100%;text-align:center;padding:11px 12px;font-size:13px;font-weight:700;color:var(--accent-dark);border-top:1px solid var(--border);cursor:pointer;background:var(--surface);border:none;font-family:var(--font)}
+    .floor-add-room-row:active{background:var(--accent-light)}
     /* floor not-affected tint */
-    .floor-not-affected .floor-section-header{border-left-color:var(--border);opacity:.7}
+    .floor-not-affected .floor-section-header{border-left-color:var(--border)}
+    .floor-not-affected{opacity:.6}
+    .floor-na-tag{font-size:11px;font-weight:600;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;margin-left:auto;flex-shrink:0}
     /* Add floor button row */
     .add-floor-row{padding:12px 16px 20px;display:flex}
     .add-floor-btn{background:none;border:1.5px dashed var(--border);border-radius:var(--r-sm);cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;color:var(--accent-dark);padding:11px 20px;width:100%;display:block;text-align:center}
@@ -298,10 +314,13 @@
     .floor-sev-btn{background:var(--accent-light);border:1.5px solid var(--accent-border);border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent-dark);padding:3px 7px;white-space:nowrap;flex-shrink:0}
     .floor-sev-btn-ghost{background:transparent;border-color:var(--border);color:var(--text-muted);font-weight:400}
     .floor-clear-badge{font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--success-light);color:var(--success);border:1px solid #a7f3d0;flex-shrink:0}
-    .floor-not-affected{opacity:.55}
+    /* floor-not-affected opacity moved to floor-plan section */
     .wiz-special-floors{display:flex;gap:10px;width:100%;margin-bottom:20px}
     .wiz-special-btn{flex:1;padding:14px 0;font-size:14px;font-weight:700;border-radius:var(--r-sm);background:var(--surface2);border:2px solid var(--border);cursor:pointer;color:var(--text);font-family:var(--font);transition:all .12s;text-align:center}
     .wiz-special-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
+    .wiz-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+    .wiz-type-btn{padding:10px 6px;font-size:12px;font-weight:700;border-radius:var(--r-sm);background:var(--surface2);border:2px solid var(--border);cursor:pointer;color:var(--text);font-family:var(--font);transition:all .12s;text-align:center;line-height:1.3}
+    .wiz-type-btn.active{background:var(--accent);border-color:var(--accent-dark);color:#111}
     .wiz-uniform-row{padding:14px 16px 100px}
     .wiz-uniform-btns{display:flex;gap:10px;margin-top:10px}
     .wiz-uniform-label{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
@@ -382,12 +401,14 @@
       <div class="wizard-sub">Where is this job?</div>
       <label class="input-label">Address</label>
       <input class="input-field" id="inp-address" placeholder="123 Main Street..." />
+      <label class="input-label">Property Type</label>
+      <div class="wiz-type-grid" id="wiz-type-btns"></div>
       <label class="input-label">Floors</label>
       <div class="floor-grid" id="floor-count-btns"></div>
       <label class="input-label">Special Floors</label>
       <div class="wiz-special-floors">
-        <button type="button" class="wiz-special-btn" id="wiz-btn-basement">🏗 Basement</button>
-        <button type="button" class="wiz-special-btn" id="wiz-btn-attic">🔺 Attic</button>
+        <button type="button" class="wiz-special-btn" id="wiz-btn-basement">Basement</button>
+        <button type="button" class="wiz-special-btn" id="wiz-btn-attic">Attic</button>
       </div>
     </div>
     <div class="wizard-footer">
@@ -424,7 +445,7 @@
     <div class="scroll">
       <div style="padding:16px 20px 8px">
         <div style="font-size:22px;font-weight:800;letter-spacing:-.4px">Loss Assessment</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-top:4px">Select each loss type present and rate 1–3. Tap ▸ for details.</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-top:4px">Rate the <strong>worst affected area</strong> of the home — the items we'll be cleaning or packing out. Floors and rooms inherit these values automatically unless overridden. Tap ▸ to add detail ratings.</div>
       </div>
       <div style="padding:0 16px 4px" id="sev-loss-cards"></div>
       <div class="wiz-uniform-row">
@@ -449,11 +470,18 @@
       <div id="order-complete-badge" style="display:none;font-size:10px;font-weight:700;padding:3px 8px;background:var(--success-light);color:var(--success);border-radius:10px;border:1px solid #a7f3d0">✓ Complete</div>
     </div>
     <div class="scroll">
-      <div style="padding:16px 20px 0">
-        <div style="font-size:20px;font-weight:800;letter-spacing:-.3px" id="order-address-heading"></div>
-        <div style="font-size:13px;color:var(--text-sec);margin-top:3px" id="order-stats"></div>
+      <div id="order-cover-strip" style="cursor:pointer;position:relative;overflow:hidden;background:var(--surface2);border-bottom:1px solid var(--border)">
+        <img id="order-cover-img" style="width:100%;height:140px;object-fit:cover;display:none" />
+        <div id="order-cover-placeholder" style="height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--text-muted)">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:12px;font-weight:600">Tap to add cover photo</div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,.55))">
+          <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.3px;text-shadow:0 1px 3px rgba(0,0,0,.4)" id="order-address-heading"></div>
+          <div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:1px" id="order-stats"></div>
+        </div>
       </div>
-      <div style="height:8px"></div>
+      <div style="height:6px"></div>
       <div id="floors-list"></div>
     </div>
     <div style="padding:10px 16px 16px;border-top:1px solid var(--border);flex-shrink:0">
@@ -466,7 +494,10 @@
     <div class="room-header-area">
       <div class="room-breadcrumb" id="room-breadcrumb"></div>
       <div class="room-header-row">
-        <div class="room-title" id="room-title" title="Tap to switch room"></div>
+        <div style="flex:1;min-width:0">
+          <div class="room-title" id="room-title" title="Tap to switch room"></div>
+          <div id="room-status-badge" style="display:none;margin-top:2px"></div>
+        </div>
         <button class="room-cam-fab" id="room-cam-fab">📷</button>
       </div>
       <div class="room-toolbar">
@@ -518,15 +549,18 @@
         <button class="cam-close" id="cam-close">✕</button>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
           <div class="cam-badge" id="cam-badge"></div>
+          <div class="cam-badge" id="cam-prelabel-badge" style="display:none;background:rgba(245,158,11,.85);color:#111;font-size:12px"></div>
           <button id="cam-floor-plan" style="background:rgba(0,0,0,.55);border:none;color:#fff;padding:5px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer">Floor Plan ›</button>
         </div>
       </div>
-      <!-- Floating shutter button over the preview -->
+      <!-- Floating shutter -->
       <div class="cap-float">
         <div class="cap-ring">
           <button class="cap-btn" id="btn-capture" disabled></button>
         </div>
       </div>
+      <!-- Room Done button — bottom-left, clear of shutter -->
+      <button class="cap-done-btn" id="btn-cam-room-done">✓ Room Done</button>
     </div>
   </div>
 
@@ -535,7 +569,7 @@
     <div class="review-photo-area">
       <img id="rev-img" alt="" />
       <div class="review-hud">
-        <button class="review-close" id="rev-close">✕</button>
+        <button class="review-close" id="rev-close" title="Discard photo">✕ Discard</button>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="cam-close" id="rev-retake" title="Retake photo">↺</button>
           <button class="review-cover-btn" id="rev-cover-btn" title="Set as cover photo">☆</button>
@@ -637,15 +671,17 @@
   <div class="sheet-overlay" id="sheet-room-assess">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div style="display:flex;align-items:center;margin-bottom:4px">
-        <div class="sheet-title" style="margin-bottom:0;flex:1">Room Impact Check</div>
-        <button id="assess-skip" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text-muted);padding:4px 8px">Skip</button>
+      <div class="sheet-title" style="margin-bottom:10px">Room Impact Check</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-white btn-md" id="assess-not-affected" style="flex:1;font-size:13px">Not Affected</button>
+        <button class="btn btn-white btn-md" id="assess-nothing-for-us" style="flex:1;font-size:13px">Nothing for Us</button>
       </div>
-      <div id="assess-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Override for this room — set 0 to clear a type.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Inherited from floor / order</div>
+      <div id="assess-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">This room's override</div>
       <div id="assess-loss-cards"></div>
       <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn btn-white btn-md" id="assess-not-affected" style="flex:1">✓ Room Clear</button>
+        <button class="btn btn-white btn-md" id="assess-skip" style="flex:1">Skip</button>
         <button class="btn btn-amber btn-md" id="assess-confirm" style="flex:1">Save →</button>
       </div>
       <div style="text-align:center;margin-top:10px">
@@ -659,7 +695,9 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="sheet-title">Floor Severity Override</div>
-      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Set to 0 to inherit from order. Set 1–3 to override for this floor.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Order-level severity</div>
+      <div id="floor-sev-inherited-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">This floor's override</div>
       <div id="floor-sev-cards"></div>
       <div class="floor-sev-uniform-row">
         <div class="sub-section-label" style="margin-bottom:7px">Same severity for all rooms on this floor?</div>
@@ -710,9 +748,9 @@
       <div class="sheet-handle"></div>
       <div class="sheet-title">Add Floor</div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-white btn-lg btn-full" id="add-floor-basement">🏗 Basement</button>
-        <button class="btn btn-white btn-lg btn-full" id="add-floor-standard">📐 Numbered Floor</button>
-        <button class="btn btn-white btn-lg btn-full" id="add-floor-attic">🔺 Attic</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-basement">↓ Basement</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-standard">+ Numbered Floor</button>
+        <button class="btn btn-white btn-lg btn-full" id="add-floor-attic">↑ Attic</button>
       </div>
       <div style="margin-top:10px;text-align:center">
         <button id="add-floor-cancel" style="background:none;border:none;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--text-muted)">Cancel</button>
@@ -750,9 +788,11 @@ const PRIMARY_REASONS=[
 // Secondary reasons — rendered in same grid, no visual separator
 const MORE_REASONS=[
   {code:'COE',label:'Cash Out Estimate'},
-  {code:'CTW',label:'Customer Throwing Out'},
+  {code:'CTW',label:'Throwing Out'},
   {code:'DNT',label:'Do Not Touch'},
+  {code:'NTD',label:'Nothing for Us'},
   {code:'NWC',label:'Not Worth Cleaning'},
+  {code:'OV', label:'Other Vendor'},
   {code:'SO', label:'Storage Only'},
   {code:'UND',label:'Undecided'},
 ];
@@ -764,7 +804,7 @@ const SUB_MAP={
   'TLI':['We are writing'],
   'NA':[],'CC':[],
   'CTW':['Dispose','Donate'],
-  'COE':[],'DNT':[],'NWC':[],'SO':[],'UND':[],
+  'COE':[],'DNT':[],'NTD':[],'NWC':[],'OV':[],'SO':[],'UND':[],
 };
 const LOSS_TYPES=[
   {code:'fire',  label:'Fire',     icon:'🔥', details:['Heat','Soot','Odor','Ext. Power','Rem. Debris','FF Damage']},
@@ -777,6 +817,7 @@ function emptySev(){const s={};LOSS_TYPES.forEach(lt=>{s[lt.code]={sev:0,details
 function mergeSev(base,ov){if(!ov)return base;Object.keys(ov).forEach(k=>{if(!base[k])base[k]={sev:0,details:{}};if(ov[k].sev!==undefined)base[k].sev=ov[k].sev;if(ov[k].details)Object.assign(base[k].details,ov[k].details);});return base;}
 function effectiveSev(room,fi){const b=JSON.parse(JSON.stringify(curOrder.severity||emptySev()));const fl=curOrder.floors[fi!==undefined?fi:curFloorIdx];if(fl&&fl.severity)mergeSev(b,fl.severity);if(room&&room.severity)mergeSev(b,room.severity);return b;}
 function sevSummary(sevObj){const parts=LOSS_TYPES.filter(lt=>sevObj[lt.code]&&sevObj[lt.code].sev>0).map(lt=>lt.icon+sevObj[lt.code].sev);return parts.length?parts.join(' '):null;}
+const PROPERTY_TYPES=['House','Apartment','Business','Row House','Garden Apt','Trailer'];
 const OFFERINGS=['Textiles','Art','Appliance'];
 const ROOM_PRESETS=['Kitchen','Bath','Bedroom','Living','Dining','Master','Office','Garage','Laundry','Hallway','Closet','Attic','Basement','Pantry','Foyer','Den','Studio','Gym'];
 
@@ -785,7 +826,7 @@ let capturedUrl='',selPrimary=null,selSubs=new Set();
 let camStream=null,bulkMode=false,bulkSel=new Set(),filterSel=new Set();
 let recognition=null,speakActive=false;
 let bulkReasonPick=null,editingPhoto=null,lastTags={};
-let nextOrderId=1,nextPhotoId=1,wizFloorCount=1,wizHasBasement=false,wizHasAttic=false;
+let nextOrderId=1,nextPhotoId=1,wizFloorCount=1,wizHasBasement=false,wizHasAttic=false,wizPropertyType='House';
 let editFloorUniform=false;  // "same for all rooms?" toggle in floor-sev sheet
 let floorSevOpenRoom=false;  // open Add Room sheet after saving floor severity (floor-check flow)
 let checkFloorIdx=null;      // floor being evaluated in floor-check flow
@@ -840,8 +881,19 @@ function onEnter(id){
   if(id==='scr-wiz3')initWiz3();
   if(id==='scr-order')renderOrder();
   if(id==='scr-room')renderRoom();
-  if(id==='scr-camera')startCam();
-  if(id==='scr-review'){editingPhoto?initEditReview():initReview();}
+  if(id==='scr-camera'){startCam();updateCamBadge();}
+  if(id==='scr-review'){
+    // Guard: if no image to show, skip back to room grid
+    if(!editingPhoto&&!capturedUrl){
+      if(stack[stack.length-1]==='scr-review')stack.pop();
+      if(stack[stack.length-1]==='scr-camera')stack.pop();
+      const dest=stack[stack.length-1]||'scr-room';
+      document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===dest));
+      onEnter(dest);
+      return;
+    }
+    editingPhoto?initEditReview():initReview();
+  }
 }
 
 /* ── Orders ── */
@@ -851,8 +903,12 @@ function renderOrders(){
   orders.slice().reverse().forEach(o=>{
     const tp=o.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
     const completeBadge=o.scopeComplete?'<span style="font-size:10px;font-weight:700;padding:2px 7px;background:var(--success-light);color:var(--success);border-radius:10px;border:1px solid #a7f3d0;margin-left:6px">✓ Complete</span>':'';
+    const thumbHtml=o.coverPhoto
+      ?`<div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0"><img src="${o.coverPhoto}" style="width:100%;height:100%;object-fit:cover"/></div>`
+      :`<div class="card-icon">🏠</div>`;
     const c=document.createElement('div');c.className='card';
-    c.innerHTML=`<div class="card-row"><div class="card-icon">🏠</div><div class="card-body"><div class="card-title" style="display:flex;align-items:center">${esc(o.address||'Order #'+o.id)}${completeBadge}</div><div class="card-sub">${o.floors.length} floor(s) · ${tp} photo(s) · ${esc(o.date)}</div></div><div class="chevron">›</div></div>`;
+    const ptLabel=o.propertyType?` · ${esc(o.propertyType)}`:'';
+    c.innerHTML=`<div class="card-row">${thumbHtml}<div class="card-body"><div class="card-title" style="display:flex;align-items:center">${esc(o.address||'Order #'+o.id)}${completeBadge}</div><div class="card-sub">${o.floors.length} floor(s) · ${tp} photo(s)${ptLabel} · ${esc(o.date)}</div></div><div class="chevron">›</div></div>`;
     c.addEventListener('click',()=>{curOrder=o;go('scr-order');});
     el.appendChild(c);
   });
@@ -862,6 +918,12 @@ $('btn-new-order').addEventListener('click',()=>go('scr-wiz1'));
 /* ── Wizard ── */
 function initWiz1(){
   progressBars('wiz-prog',1,3);
+  // Property type buttons
+  const tg=$('wiz-type-btns');tg.innerHTML='';
+  PROPERTY_TYPES.forEach(pt=>{
+    const b=document.createElement('button');b.type='button';b.className='wiz-type-btn'+(wizPropertyType===pt?' active':'');b.textContent=pt;
+    b.addEventListener('click',()=>{wizPropertyType=pt;initWiz1();});tg.appendChild(b);
+  });
   const fc=$('floor-count-btns');fc.innerHTML='';
   for(let n=1;n<=4;n++){
     const b=document.createElement('button');b.type='button';b.className='floor-btn'+(wizFloorCount===n?' active':'');b.textContent=n;
@@ -877,6 +939,7 @@ $('btn-wiz1-next').addEventListener('click',()=>{
   window._wizFloors=wizFloorCount;
   window._wizBasement=wizHasBasement;
   window._wizAttic=wizHasAttic;
+  window._wizPropertyType=wizPropertyType;
   go('scr-wiz2');
 });
 function initWiz2(){
@@ -914,6 +977,8 @@ function renderLossCards(containerId,sevObj,prefix){
   LOSS_TYPES.forEach(lt=>{
     const entry=sevObj[lt.code]||(sevObj[lt.code]={sev:0,details:{}});
     const expandKey=prefix+'-'+lt.code;
+    // Auto-expand when severity > 0 (unless user manually collapsed)
+    if(entry.sev>0&&!expandedLossCards.has(expandKey+'_manual_close'))expandedLossCards.add(expandKey);
     const isExp=expandedLossCards.has(expandKey);
     const card=document.createElement('div');
     card.className='loss-card'+(entry.sev>0?' active':'');
@@ -925,8 +990,13 @@ function renderLossCards(containerId,sevObj,prefix){
     expandBtn.textContent=isExp?'▾ Hide':'▸ Details';
     expandBtn.addEventListener('click',(e)=>{
       e.stopPropagation();
-      if(expandedLossCards.has(expandKey))expandedLossCards.delete(expandKey);
-      else expandedLossCards.add(expandKey);
+      if(expandedLossCards.has(expandKey)){
+        expandedLossCards.delete(expandKey);
+        expandedLossCards.add(expandKey+'_manual_close');
+      } else {
+        expandedLossCards.add(expandKey);
+        expandedLossCards.delete(expandKey+'_manual_close');
+      }
       renderLossCards(containerId,sevObj,prefix);
     });
 
@@ -961,6 +1031,8 @@ function renderLossCards(containerId,sevObj,prefix){
       const code=b.dataset.code,v=parseInt(b.dataset.v);
       if(!sevObj[code])sevObj[code]={sev:0,details:{}};
       sevObj[code].sev=v;
+      // Clear manual-close flag when user sets a non-zero severity so details auto-expand
+      if(v>0)expandedLossCards.delete(prefix+'-'+code+'_manual_close');
       renderLossCards(containerId,sevObj,prefix);
     });
   });
@@ -980,10 +1052,10 @@ $('btn-wiz3-done').addEventListener('click',()=>{
   if(window._wizBasement)floors.push({name:'Basement',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   for(let i=1;i<=numF;i++)floors.push({name:'Floor '+i,rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   if(window._wizAttic)floors.push({name:'Attic',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
-  const o={id:nextOrderId++,address:window._wizAddr||'New Order',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors};
+  const o={id:nextOrderId++,address:window._wizAddr||'New Order',propertyType:window._wizPropertyType||'House',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors};
   orders.push(o);curOrder=o;
-  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;
-  wizFloorCount=1;wizHasBasement=false;wizHasAttic=false;
+  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;window._wizPropertyType=null;
+  wizFloorCount=1;wizHasBasement=false;wizHasAttic=false;wizPropertyType='House';
   expandedLossCards.clear();
   collapsedFloors.clear();
   go('scr-order');
@@ -996,6 +1068,19 @@ function renderOrder(){
   const tp=curOrder.floors.reduce((a,f)=>a+f.rooms.reduce((b,r)=>b+r.photos.length,0),0);
   const tr=curOrder.floors.reduce((a,f)=>a+f.rooms.length,0);
   $('order-stats').textContent=tp+' photo(s) · '+tr+' room(s) · '+curOrder.floors.length+' floor(s)';
+
+  // Sync cover photo strip
+  const coverImg=$('order-cover-img');
+  const coverPh=$('order-cover-placeholder');
+  const coverStrip=$('order-cover-strip');
+  if(curOrder.coverPhoto){
+    coverImg.src=curOrder.coverPhoto;
+    coverImg.style.display='block';coverPh.style.display='none';
+    coverStrip.style.minHeight='140px';
+  } else {
+    coverImg.style.display='none';coverPh.style.display='flex';
+    coverStrip.style.minHeight='';
+  }
 
   const el=$('floors-list');el.innerHTML='';
 
@@ -1037,16 +1122,17 @@ function renderOrder(){
     // Counts label — show room+photo count when collapsed, room count when expanded
     const countsEl=document.createElement('span');
     countsEl.className='floor-section-counts';
-    if(isCollapsed){
+    if(f.notAffected){
+      countsEl.textContent='';  // tag rendered inside header body
+    } else if(isCollapsed){
       countsEl.textContent=rc_count+' room'+(rc_count===1?'':'s')+(pc>0?' · '+pc+' 📷':'');
     } else {
       countsEl.textContent=rc_count+' room'+(rc_count===1?'':'s');
     }
 
-    // Not-affected label (replaces severity badge)
-    const notAffLabel=f.notAffected?'<span class="floor-clear-badge" style="font-size:11px;margin-right:4px">None</span>':'';
+    const notAffTag=f.notAffected?'<span class="floor-na-tag">Not Affected</span>':'';
 
-    hdr.innerHTML=`<div class="floor-section-body"><div class="floor-section-name">${esc(floorDisplayName)}${notAffLabel}</div></div>`;
+    hdr.innerHTML=`<div class="floor-section-body"><div class="floor-section-name">${esc(floorDisplayName)}</div>${notAffTag}</div>`;
     hdr.appendChild(countsEl);
     hdr.appendChild(addBtn);
     hdr.appendChild(arrowEl);
@@ -1078,22 +1164,38 @@ function renderOrder(){
         const hasTLI=r.photos.some(p=>p.primary==='TLI');
         const hasIH=r.photos.some(p=>p.primary==='IH');
         let badgeHtml='';
-        if(hasPU)badgeHtml+='<span class="badge badge-pu">PU</span>';
-        if(hasTLI)badgeHtml+='<span class="badge badge-tli">TLI</span>';
-        if(hasIH)badgeHtml+='<span class="badge badge-ih">IH</span>';
-        if(r.isOrigin)badgeHtml+='<span class="origin-badge">🎯 Origin</span>';
+        if(r.notAffected)badgeHtml+='<span class="room-status-pill room-status-na" style="font-size:11px;padding:2px 8px">✓ Not Affected</span>';
+        else if(r.nothingForUs)badgeHtml+='<span class="room-status-pill room-status-nfu" style="font-size:11px;padding:2px 8px">Nothing for Us</span>';
+        else {
+          if(hasPU)badgeHtml+='<span class="badge badge-pu">PU</span>';
+          if(hasTLI)badgeHtml+='<span class="badge badge-tli">TLI</span>';
+          if(hasIH)badgeHtml+='<span class="badge badge-ih">IH</span>';
+          if(r.isOrigin)badgeHtml+='<span class="origin-badge">🎯 Origin</span>';
+        }
 
-        const card=document.createElement('div');card.className='floor-room-card';
+        const card=document.createElement('div');
+        card.className='floor-room-card'+(r.isDone?' floor-room-done':'');
         const thumbHtml=cover
           ?`<div class="floor-room-thumb"><img src="${cover.dataUrl}" /></div>`
           :`<div class="floor-room-thumb">📷</div>`;
-        card.innerHTML=`${thumbHtml}<div class="floor-room-body"><div class="floor-room-name">${esc(r.displayName)}</div><div class="floor-room-meta">${badgeHtml}</div></div><div class="floor-room-count">${r.photos.length} 📷</div><div class="chevron" style="color:var(--text-muted);margin-left:6px">›</div>`;
+        const doneBadge=r.isDone?'<span style="font-size:11px;font-weight:700;color:var(--success);background:var(--success-light);border:1px solid #a7f3d0;border-radius:4px;padding:2px 7px;margin-left:4px">✓ Done</span>':'';
+        card.innerHTML=`${thumbHtml}<div class="floor-room-body"><div class="floor-room-name">${esc(r.displayName)}${doneBadge}</div><div class="floor-room-meta">${badgeHtml}</div></div><div class="floor-room-count">${r.photos.length} 📷</div><div class="chevron" style="color:var(--text-muted);margin-left:6px">›</div>`;
         card.addEventListener('click',()=>{curFloorIdx=fi;curRoom=r;go('scr-room');});
         roomsWrap.appendChild(card);
       });
     }
 
     sec.appendChild(roomsWrap);
+
+    // Add Room inline placeholder (only when expanded)
+    if(!isCollapsed){
+      const addRoomRow=document.createElement('div');
+      addRoomRow.className='floor-add-room-row';
+      addRoomRow.textContent='+ Add Room';
+      addRoomRow.addEventListener('click',()=>{curFloorIdx=fi;openAddRoomSheet();});
+      sec.appendChild(addRoomRow);
+    }
+
     el.appendChild(sec);
   });
 
@@ -1108,6 +1210,22 @@ function renderOrder(){
   // Sync complete badge
   $('order-complete-badge').style.display=curOrder.scopeComplete?'':'none';
 }
+
+/* ── Order cover photo ── */
+(function(){
+  const strip=$('order-cover-strip');
+  // Hidden file input for picking/capturing photo
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*';inp.capture='environment';inp.style.display='none';
+  document.body.appendChild(inp);
+  strip.addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{
+    const file=inp.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=e=>{curOrder.coverPhoto=e.target.result;renderOrder();renderOrders();showToast('✓ Cover photo saved');};
+    reader.readAsDataURL(file);inp.value='';
+  });
+})();
 
 /* ── Floor entry / check flow ── */
 function openFloorEntry(fi){
@@ -1266,7 +1384,21 @@ function createRooms(names){
 function renderRoom(){
   $('room-title').textContent=curRoom.displayName;
   $('room-breadcrumb').textContent='← Floor Plan';
-  $('cam-badge').textContent=curRoom.displayName;
+
+  // Status badge
+  const sb=$('room-status-badge');
+  if(curRoom.notAffected){
+    sb.style.display='block';
+    sb.innerHTML='<span class="room-status-pill room-status-na" id="room-status-pill-el">✓ Not Affected — tap to reassess</span>';
+  } else if(curRoom.nothingForUs){
+    sb.style.display='block';
+    sb.innerHTML='<span class="room-status-pill room-status-nfu" id="room-status-pill-el">Nothing for Us — tap to reassess</span>';
+  } else {
+    sb.style.display='none';sb.innerHTML='';
+  }
+  const pill=document.getElementById('room-status-pill-el');
+  if(pill)pill.addEventListener('click',()=>{curRoom.notAffected=false;curRoom.nothingForUs=false;openAssessSheet();});
+  updateCamBadge();
   bulkMode=false;bulkSel.clear();filterSel.clear();searchQuery='';
   $('btn-select-toggle').classList.remove('active');
   $('btn-filter-toggle').classList.remove('active');
@@ -1535,13 +1667,24 @@ $('bulk-room').addEventListener('click',()=>{
 $('bulk-room-cancel').addEventListener('click',()=>closeSheet('sheet-bulk-room'));
 
 /* ── Camera ── */
+function updateCamBadge(){
+  $('cam-badge').textContent=curRoom?curRoom.displayName:'';
+  const prelabel=$('cam-prelabel-badge');
+  if(selPrimary){
+    const r=findReason(selPrimary);
+    prelabel.textContent=(r?r.label:selPrimary)+' ↓';
+    prelabel.style.display='block';
+  } else {
+    prelabel.style.display='none';
+  }
+}
 function startCam(){
   const vid=$('cam-video'),fb=$('cam-fallback'),btn=$('btn-capture');
   if(camStream){vid.srcObject=camStream;vid.style.display='block';fb.style.display='none';btn.disabled=false;return;}
   fb.style.display='flex';fb.querySelector('div:last-child').textContent='Starting camera…';vid.style.display='none';
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920}}})
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920}},audio:false})
     .then(s=>{camStream=s;vid.srcObject=s;vid.style.display='block';fb.style.display='none';btn.disabled=false;})
-    .catch(()=>{fb.querySelector('div:last-child').textContent='Camera not available. Use HTTPS or localhost.';btn.disabled=true;});
+    .catch(()=>{fb.querySelector('div:last-child').textContent='Camera unavailable — open via HTTPS (e.g. ngrok or Netlify) to use on a real device.';btn.disabled=true;});
 }
 function stopCam(){
   if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
@@ -1559,9 +1702,25 @@ $('cam-close').addEventListener('click',()=>{
 });
 $('cam-floor-plan').addEventListener('click',()=>{
   stopCam();
-  // Clear back to scr-order, discarding camera and room history
   while(stack.length>1 && stack[stack.length-1]!=='scr-order')stack.pop();
   go('scr-order');
+});
+function doRoomDone(){
+  stopCam();
+  curRoom.isDone=true;
+  while(stack.length>1 && stack[stack.length-1]!=='scr-order')stack.pop();
+  go('scr-order');
+  showToast('✓ '+curRoom.displayName+' marked done');
+}
+$('btn-cam-room-done').addEventListener('click',()=>{
+  const hasPhotos=curRoom.photos.length>0;
+  // Only explicit status flags count — assessed alone means the sheet was shown, not that a decision was made
+  const hasExplicitStatus=curRoom.notAffected||curRoom.nothingForUs;
+  if(!hasPhotos&&!hasExplicitStatus){
+    if(confirm(curRoom.displayName+' has no photos and no instructions.\nMark it done anyway?'))doRoomDone();
+  } else {
+    doRoomDone();
+  }
 });
 $('btn-capture').addEventListener('click',()=>{
   const v=$('cam-video');if(!camStream||!v.videoWidth)return;
@@ -1767,15 +1926,17 @@ function openAssessSheet(){
   // Ensure all keys present
   LOSS_TYPES.forEach(lt=>{if(!assessRoomSev[lt.code])assessRoomSev[lt.code]={sev:0,details:{}};});
 
-  // Show inherited (order + floor) chips as context
-  const inherited=effectiveSev(null,curFloorIdx); // order+floor only (pass null room)
+  // Show inherited (order + floor) chips as context — read-only reference
+  const inherited=effectiveSev(null,curFloorIdx); // order+floor only
   const row=$('assess-inherited-row');row.innerHTML='';
   let anyInherited=false;
   LOSS_TYPES.forEach(lt=>{
     const s=inherited[lt.code];
     if(s&&s.sev>0){anyInherited=true;
+      const detailParts=Object.entries(s.details||{}).filter(([,v])=>v>0).map(([k,v])=>k+' '+v);
+      const detailStr=detailParts.length?' — '+detailParts.join(', '):'';
       const chip=document.createElement('span');chip.className='inherited-sev-chip';
-      chip.textContent=lt.icon+' '+lt.label+' ('+s.sev+')';row.appendChild(chip);
+      chip.textContent=lt.icon+' '+lt.label+' '+s.sev+detailStr;row.appendChild(chip);
     }
   });
   if(!anyInherited){
@@ -1787,12 +1948,25 @@ function openAssessSheet(){
 }
 $('assess-skip').addEventListener('click',()=>closeSheet('sheet-room-assess'));
 $('assess-not-affected').addEventListener('click',()=>{
-  // Explicit zeros for all types = room is clear
   const clr=emptySev();
-  curRoom.severity=clr;curRoom.assessed=true;
+  curRoom.severity=clr;curRoom.assessed=true;curRoom.notAffected=true;curRoom.nothingForUs=false;
   closeSheet('sheet-room-assess');
-  showToast('✓ Room marked as clear');
-  renderOrder();
+  // Pre-load NA tag so first photo is auto-tagged, then open camera for documenting shot
+  lastTags[curRoom.displayName]={primary:'NA',subs:[],note:'',_keepForNext:true};
+  selPrimary='NA';selSubs=new Set();
+  renderRoom();renderOrder();
+  showToast('📷 Take a photo to document — tagged Not Affected');
+  go('scr-camera');
+});
+$('assess-nothing-for-us').addEventListener('click',()=>{
+  curRoom.assessed=true;curRoom.nothingForUs=true;curRoom.notAffected=false;
+  closeSheet('sheet-room-assess');
+  // Pre-load NTD tag so first photo is auto-tagged, then open camera for documenting shot
+  lastTags[curRoom.displayName]={primary:'NTD',subs:[],note:'',_keepForNext:true};
+  selPrimary='NTD';selSubs=new Set();
+  renderRoom();renderOrder();
+  showToast('📷 Take a photo to document — tagged Nothing for Us');
+  go('scr-camera');
 });
 $('assess-confirm').addEventListener('click',()=>{
   curRoom.severity=assessRoomSev;curRoom.assessed=true;
@@ -1817,12 +1991,28 @@ $('floor-sev-uniform-no').addEventListener('click',()=>{editFloorUniform=false;s
 
 function openFloorSevSheet(){
   const fl=curOrder.floors[editFloorIdx];
-  // Pre-fill: start from order-level severity (so user sees inherited values), then apply floor override on top
+  // Pre-fill: start from order-level severity, then apply floor override on top
   const base=JSON.parse(JSON.stringify(curOrder.severity||emptySev()));
   if(fl.severity)mergeSev(base,fl.severity);
   editFloorSev=base;
   LOSS_TYPES.forEach(lt=>{if(!editFloorSev[lt.code])editFloorSev[lt.code]={sev:0,details:{}};});
   editFloorUniform=!!fl.uniformSeverity;
+
+  // Show order-level inherited chips
+  const orderSev=curOrder.severity||emptySev();
+  const inhRow=$('floor-sev-inherited-row');inhRow.innerHTML='';
+  let anyInh=false;
+  LOSS_TYPES.forEach(lt=>{
+    const s=orderSev[lt.code];
+    if(s&&s.sev>0){anyInh=true;
+      const detailParts=Object.entries(s.details||{}).filter(([,v])=>v>0).map(([k,v])=>k+' '+v);
+      const detailStr=detailParts.length?' — '+detailParts.join(', '):'';
+      const chip=document.createElement('span');chip.className='inherited-sev-chip';
+      chip.textContent=lt.icon+' '+lt.label+' '+s.sev+detailStr;inhRow.appendChild(chip);
+    }
+  });
+  if(!anyInh){const chip=document.createElement('span');chip.className='inherited-sev-chip';chip.textContent='No order-level severity';inhRow.appendChild(chip);}
+
   renderLossCards('floor-sev-cards',editFloorSev,'floorsev');
   syncFloorSevUniform();
   openSheet('sheet-floor-sev');
@@ -1935,6 +2125,13 @@ document.querySelectorAll('.sheet-overlay').forEach(o=>{
   renderOrders();
 })();
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
