@@ -1,4 +1,4 @@
-const CACHE = 'photoscope-v1';
+const CACHE = 'photoscope-v2';
 const ASSETS = ['./preview.html', './manifest.json'];
 
 self.addEventListener('install', e => {

@@ -494,20 +494,19 @@
     </div>
     <div class="wizard-progress" id="wiz-prog3"></div>
     <div class="wizard-step-label">STEP 3 OF 3</div>
+    <div class="wiz-uniform-row" id="wiz3-uniform-row" style="flex-shrink:0;padding:14px 16px;margin:0;background:var(--surface);border-bottom:1px solid var(--border)">
+      <div class="wiz-uniform-label">Same severity throughout the home?</div>
+      <div class="wiz-uniform-sub">If yes, floors and rooms inherit order-level severity automatically.</div>
+      <div class="wiz-uniform-btns">
+        <button type="button" class="btn btn-lg" id="wiz3-uniform-yes" style="flex:1">Yes</button>
+        <button type="button" class="btn btn-lg" id="wiz3-uniform-no" style="flex:1">No</button>
+      </div>
+    </div>
     <div class="scroll" id="wiz3-scroll">
       <div style="padding:16px 20px 8px">
         <div style="font-size:22px;font-weight:800;letter-spacing:-.4px">Loss Assessment</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-top:4px">Rate the <strong>worst affected area</strong> of the home — the items we'll be cleaning or packing out. Floors and rooms inherit these values automatically unless overridden. Tap ▸ to add detail ratings.</div>
       </div>
       <div style="padding:0 16px 4px" id="sev-loss-cards"></div>
-      <div class="wiz-uniform-row">
-        <div class="wiz-uniform-label">Same severity throughout the home?</div>
-        <div class="wiz-uniform-sub">If yes, floors and rooms inherit order-level severity automatically.</div>
-        <div class="wiz-uniform-btns">
-          <button type="button" class="btn btn-lg" id="wiz3-uniform-yes" style="flex:1">Yes</button>
-          <button type="button" class="btn btn-lg" id="wiz3-uniform-no" style="flex:1">No</button>
-        </div>
-      </div>
     </div>
     <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px 20px;background:var(--bg);border-top:1px solid var(--border)">
       <button class="btn btn-amber btn-lg btn-full" id="btn-wiz3-done">📷 Start Walkthrough</button>
@@ -535,9 +534,10 @@
       </div>
       <div style="height:6px"></div>
       <div id="order-guide-slot"></div>
+      <div id="order-general-photos-wrap" style="display:none;padding:0 16px 12px"></div>
       <div id="floors-list"></div>
     </div>
-    <div style="padding:10px 16px 16px;border-top:1px solid var(--border);flex-shrink:0">
+    <div id="order-scope-footer" style="padding:10px 16px 16px;border-top:1px solid var(--border);flex-shrink:0">
       <button class="btn btn-amber btn-lg btn-full" id="btn-scope-done">✓ Complete Scope</button>
     </div>
   </div>
@@ -1025,6 +1025,8 @@ function onEnter(id){
     startCam();updateCamBadge();
     if(guidedCoverPhotoMode){
       showCamHint('Take a cover photo of the exterior of the property');
+    } else if(guidedGeneralPhotosMode){
+      showCamHint('Take additional exterior photos (optional). Use + Another to add more.');
     } else if(guidedMode&&curRoom){
       if(selPrimary==='NA'){
         showCamHint('Photograph the unaffected room for our records');
@@ -1043,7 +1045,7 @@ function onEnter(id){
   }
   if(id==='scr-review'){
     // Guard: if no image to show, skip back to room grid
-    if(!guidedCoverPhotoMode&&!editingPhoto&&!capturedUrl){
+    if(!guidedCoverPhotoMode&&!guidedGeneralPhotosMode&&!editingPhoto&&!capturedUrl){
       if(stack[stack.length-1]==='scr-review')stack.pop();
       if(stack[stack.length-1]==='scr-camera')stack.pop();
       const dest=stack[stack.length-1]||'scr-room';
@@ -1084,6 +1086,9 @@ $('guide-toggle').addEventListener('click',()=>{
 });
 $('btn-new-order').addEventListener('click',()=>{
   window._wiz1GuideDismissed=window._wiz2GuideDismissed=window._wiz3GuideDismissed=false;
+  window._wizUniform=undefined;
+  window._wizGeneralPhotos=[];
+  guidedGeneralPhotosMode=false;
   go('scr-wiz1');
 });
 
@@ -1119,8 +1124,11 @@ function dismissCamHint(){
   setTimeout(()=>{el.style.display='none';el.classList.remove('fade');},400);
 }
 
-/* ── New user detection ── */
-if(!orders.length&&localStorage.getItem('guidedMode')===null){
+/* ── New user: default guided mode ON (avoid confusing OFF state) ── */
+if(localStorage.getItem('guidedMode')===null){
+  guidedMode=true;localStorage.setItem('guidedMode','true');
+}
+if(!orders.length&&localStorage.getItem('guidedMode')==='false'){
   guidedMode=true;localStorage.setItem('guidedMode','true');
 }
 
@@ -1152,6 +1160,7 @@ function initWiz1(){
 $('wiz-btn-basement').addEventListener('click',()=>{wizHasBasement=!wizHasBasement;initWiz1();});
 $('wiz-btn-attic').addEventListener('click',()=>{wizHasAttic=!wizHasAttic;initWiz1();});
 let guidedCoverPhotoMode=false;
+let guidedGeneralPhotosMode=false;
 $('btn-wiz1-next').addEventListener('click',()=>{
   window._wizAddr=$('inp-address').value.trim()||'New Order';
   window._wizFloors=wizFloorCount;
@@ -1188,9 +1197,9 @@ function initWiz2(){
 }
 $('btn-wiz2-next').addEventListener('click',()=>go('scr-wiz3'));
 function initWiz3(){
+  window._wizUniform=undefined;
   progressBars('wiz-prog3',3,3);
   if(!window._wizSev)window._wizSev=emptySev();
-  if(window._wizUniform===undefined)window._wizUniform=true;
   renderLossCards('sev-loss-cards',window._wizSev,'wiz');
   syncWiz3Uniform();
   if(guidedMode&&!window._wiz3GuideDismissed){
@@ -1203,9 +1212,15 @@ function initWiz3(){
   }
 }
 function syncWiz3Uniform(){
-  const isYes=window._wizUniform!==false;
+  const v=window._wizUniform;
+  const isYes=v===true;
+  const isNo=v===false;
   $('wiz3-uniform-yes').className='btn btn-lg'+(isYes?' btn-amber':' btn-white');
-  $('wiz3-uniform-no').className='btn btn-lg'+(!isYes?' btn-amber':' btn-white');
+  $('wiz3-uniform-no').className='btn btn-lg'+(isNo?' btn-amber':' btn-white');
+  const done=$('btn-wiz3-done');
+  const answered=v===true||v===false;
+  done.disabled=!answered;
+  done.style.opacity=answered?'1':'0.5';
 }
 $('wiz3-uniform-yes').addEventListener('click',()=>{window._wizUniform=true;syncWiz3Uniform();});
 $('wiz3-uniform-no').addEventListener('click',()=>{window._wizUniform=false;syncWiz3Uniform();});
@@ -1287,14 +1302,21 @@ function renderLossCards(containerId,sevObj,prefix){
   });
 }
 $('btn-wiz3-done').addEventListener('click',()=>{
+  if(window._wizUniform===undefined){
+    showToast('Please answer: Same severity throughout the home?');
+    alert('Please select Yes or No for "Same severity throughout the home?" before continuing.');
+    const row=$('wiz3-uniform-row');
+    if(row)row.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   const numF=window._wizFloors||1;
   const floors=[];
   if(window._wizBasement)floors.push({name:'Basement',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   for(let i=1;i<=numF;i++)floors.push({name:'Floor '+i,rooms:[],severity:null,notAffected:false,uniformSeverity:false});
   if(window._wizAttic)floors.push({name:'Attic',rooms:[],severity:null,notAffected:false,uniformSeverity:false});
-  const o={id:nextOrderId++,address:window._wizAddr||'New Order',propertyType:window._wizPropertyType||'House',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform!==false,floors,coverPhoto:window._wizCoverPhoto||null};
+  const o={id:nextOrderId++,address:window._wizAddr||'New Order',propertyType:window._wizPropertyType||'House',date:new Date().toLocaleDateString(),offerings:window._wizOfferings||[],severity:window._wizSev||emptySev(),uniformSeverity:window._wizUniform===true,floors,coverPhoto:window._wizCoverPhoto||null,generalPhotos:window._wizGeneralPhotos||[]};
   orders.push(o);curOrder=o;
-  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;window._wizPropertyType=null;window._wizCoverPhoto=null;
+  window._wizAddr=null;window._wizFloors=1;window._wizOfferings=[];window._wizSev=null;window._wizUniform=undefined;window._wizBasement=false;window._wizAttic=false;window._wizPropertyType=null;window._wizCoverPhoto=null;window._wizGeneralPhotos=[];
   wizFloorCount=1;wizHasBasement=false;wizHasAttic=false;wizPropertyType='House';
   expandedLossCards.clear();
   collapsedFloors.clear();
@@ -1340,6 +1362,16 @@ function renderOrder(){
   } else {
     coverImg.style.display='none';coverPh.style.display='flex';
     coverStrip.style.minHeight='';
+  }
+
+  // General (exterior) photos — order-level, not assigned to rooms
+  const genWrap=$('order-general-photos-wrap');
+  const gps=curOrder.generalPhotos||[];
+  if(gps.length>0){
+    genWrap.style.display='block';
+    genWrap.innerHTML='<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px">Exterior Photos</div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch">'+gps.map(p=>'<div style="flex-shrink:0;width:72px;height:72px;border-radius:8px;overflow:hidden;background:var(--surface2)"><img src="'+p.dataUrl+'" style="width:100%;height:100%;object-fit:cover"/></div>').join('')+'</div>';
+  } else {
+    genWrap.style.display='none';genWrap.innerHTML='';
   }
 
   const el=$('floors-list');el.innerHTML='';
@@ -1471,6 +1503,8 @@ function renderOrder(){
 
   // Sync complete badge
   $('order-complete-badge').style.display=curOrder.scopeComplete?'':'none';
+  // Hide Complete Scope button until at least one room exists
+  $('order-scope-footer').style.display=tr>0?'block':'none';
 }
 
 /* ── Order cover photo ── */
@@ -1996,6 +2030,13 @@ function updateCamBadge(){
     $('btn-cam-room-done').style.display='none';
     return;
   }
+  if(guidedGeneralPhotosMode){
+    $('cam-badge').textContent='Exterior Photos';
+    $('cam-prelabel-badge').style.display='none';
+    $('cam-floor-plan').style.display='none';
+    $('btn-cam-room-done').style.display='none';
+    return;
+  }
   $('cam-floor-plan').style.display='';
   $('btn-cam-room-done').style.display=curRoom&&curRoom.photos.length>0?'':'none';
   const roomLabel=curRoom?curRoom.displayName:'';
@@ -2028,6 +2069,13 @@ $('cam-close').addEventListener('click',()=>{
   stopCam();
   if(guidedCoverPhotoMode){
     guidedCoverPhotoMode=false;
+    while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
+    go('scr-wiz2');
+    return;
+  }
+  if(guidedGeneralPhotosMode){
+    guidedGeneralPhotosMode=false;
+    window._wizGeneralPhotos=window._wizGeneralPhotos||[];
     while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
     go('scr-wiz2');
     return;
@@ -2142,13 +2190,28 @@ function initReview(){
     $('rev-room-label').textContent='Cover Photo';
     selPrimary=null;selSubs=new Set();$('review-note').value='';
     revIsCover=false;
-    $('btn-save').textContent='✓ Use as Cover';
+    $('btn-save').textContent='Next →';
     $('btn-take-another').style.display='none';
     $('rev-cover-btn').style.display='none';
     $('rev-open-btn').style.display='none';
     $('rev-retake').style.display='';
     $('rev-close').textContent='✕ Discard';
     $('rev-close').title='Discard photo';
+    stopSpeak();renderAllReasons();renderTagPills();
+    return;
+  }
+  if(guidedGeneralPhotosMode){
+    $('rev-room-label').textContent='Exterior Photo';
+    selPrimary=null;selSubs=new Set();$('review-note').value='';
+    revIsCover=false;
+    $('btn-save').textContent='Continue →';
+    $('btn-take-another').style.display='';
+    $('btn-take-another').textContent='+ Another';
+    $('rev-cover-btn').style.display='none';
+    $('rev-open-btn').style.display='';
+    $('rev-retake').style.display='';
+    $('rev-close').textContent='✕ Discard';
+    $('rev-close').title='Discard and try again';
     stopSpeak();renderAllReasons();renderTagPills();
     return;
   }
@@ -2195,14 +2258,14 @@ function initEditReview(){
 }
 function syncRevBadges(){
   const el=$('rev-badges');el.innerHTML='';
-  if(guidedCoverPhotoMode)return;
+  if(guidedCoverPhotoMode||guidedGeneralPhotosMode)return;
   if(curRoom&&curRoom.isOrigin){const b=document.createElement('span');b.className='review-badge origin';b.textContent='🎯 Origin';el.appendChild(b);}
   if(revIsCover){const b=document.createElement('span');b.className='review-badge cover';b.textContent='★ Cover';el.appendChild(b);}
 }
 function renderAllReasons(){
   const grid=$('primary-grid');grid.innerHTML='';
-  if(guidedCoverPhotoMode){
-    grid.innerHTML='<div style="padding:8px 0;font-size:13px;color:var(--text-muted);text-align:center">No tagging needed for cover photos</div>';
+  if(guidedCoverPhotoMode||guidedGeneralPhotosMode){
+    grid.innerHTML='<div style="padding:8px 0;font-size:13px;color:var(--text-muted);text-align:center">'+(guidedCoverPhotoMode?'Cover photo — tap Next when ready':'Exterior photo — no tagging needed')+'</div>';
     const sg=$('sub-grid');if(sg)sg.innerHTML='';
     syncReviewFooter();return;
   }
@@ -2282,7 +2345,7 @@ $('sub-dept-toggle').addEventListener('click',()=>{
   renderSubPanel();
 });
 function syncReviewFooter(){
-  $('review-panel-footer').style.display=(guidedCoverPhotoMode||selPrimary||editingPhoto)?'flex':'none';
+  $('review-panel-footer').style.display=(guidedCoverPhotoMode||guidedGeneralPhotosMode||selPrimary||editingPhoto)?'flex':'none';
 }
 function renderTagPills(){
   const el=$('rev-tag-pills');el.innerHTML='';
@@ -2299,6 +2362,12 @@ $('rev-close').addEventListener('click',()=>{
     guidedCoverPhotoMode=false;
     while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
     go('scr-wiz2');
+    return;
+  }
+  if(guidedGeneralPhotosMode){
+    capturedUrl='';stack.pop();
+    document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='scr-camera'));
+    onEnter('scr-camera');
     return;
   }
   if(stack[stack.length-1]==='scr-review')stack.pop();
@@ -2337,11 +2406,22 @@ $('btn-save').addEventListener('click',()=>{
   if(guidedCoverPhotoMode){
     window._wizCoverPhoto=capturedUrl;
     guidedCoverPhotoMode=false;
+    guidedGeneralPhotosMode=true;
+    window._wizGeneralPhotos=window._wizGeneralPhotos||[];
     capturedUrl='';stopSpeak();
-    // Pop camera + review from stack and go to wiz2
+    while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
+    go('scr-camera');
+    showToast('Cover saved. Add exterior photos or continue.');
+    return;
+  }
+  if(guidedGeneralPhotosMode){
+    window._wizGeneralPhotos=window._wizGeneralPhotos||[];
+    window._wizGeneralPhotos.push({id:nextPhotoId++,dataUrl:capturedUrl,primary:'GEN',sub:'',note:'',isCover:false});
+    guidedGeneralPhotosMode=false;
+    capturedUrl='';stopSpeak();
     while(stack.length&&stack[stack.length-1]!=='scr-wiz1')stack.pop();
     go('scr-wiz2');
-    showToast('Cover photo saved');
+    showToast('Exterior photos saved');
     return;
   }
   if(editingPhoto){
@@ -2362,6 +2442,14 @@ $('btn-save').addEventListener('click',()=>{
 
 // + Another → save with current reason → keep reason for next photo (don't advance guided step)
 $('btn-take-another').addEventListener('click',()=>{
+  if(guidedGeneralPhotosMode){
+    window._wizGeneralPhotos=window._wizGeneralPhotos||[];
+    window._wizGeneralPhotos.push({id:nextPhotoId++,dataUrl:capturedUrl,primary:'GEN',sub:'',note:'',isCover:false});
+    capturedUrl='';stopSpeak();
+    go('scr-camera');
+    showToast('Saved. Take another or tap ✕ to continue.');
+    return;
+  }
   if(editingPhoto){
     curRoom.photos=curRoom.photos.filter(p=>p.id!==editingPhoto.id);
     editingPhoto=null;stopSpeak();goBack();
@@ -2548,6 +2636,9 @@ $('btn-scope-done').addEventListener('click',()=>{
 
   // Find issues — each issue carries {msg, room, floorIdx} for navigation
   const issues=[];
+  if(totalRooms===0){
+    issues.push({msg:'Add at least one room to begin your walkthrough',room:null,floorIdx:0});
+  }
   curOrder.floors.forEach((f,fi)=>{
     if(f.notAffected)return;  // skip floors marked clear
     f.rooms.forEach(r=>{
@@ -2573,9 +2664,14 @@ $('btn-scope-done').addEventListener('click',()=>{
       item.textContent=msg+' →';
       item.addEventListener('click',()=>{
         closeSheet('sheet-scope-review');
-        curFloorIdx=floorIdx;
-        curRoom=room;
-        go('scr-room');
+        if(room){
+          curFloorIdx=floorIdx;
+          curRoom=room;
+          go('scr-room');
+        } else {
+          curFloorIdx=0;
+          openAddRoomSheet();
+        }
       });
       issuesEl.appendChild(item);
     });
@@ -2638,6 +2734,7 @@ document.querySelectorAll('.sheet-overlay').forEach(o=>{
     severity:sev,
     uniformSeverity:false,
     scopeComplete:false,
+    generalPhotos:[],
     floors:[
       {name:'Floor 1',severity:null,notAffected:false,uniformSeverity:false,rooms:[
         {name:'Kitchen',displayName:'1. Kitchen',photos:[],assessed:false,severity:null,isOrigin:false},
@@ -2650,7 +2747,9 @@ document.querySelectorAll('.sheet-overlay').forEach(o=>{
   };
   orders.push(o);
   renderOrders();
+  updateGuideToggle();
 })();
+if(document.querySelector('#scr-orders.active'))updateGuideToggle();
 })();
 </script>
 <script>
